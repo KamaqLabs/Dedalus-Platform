@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-
 dotenv.config();
 
 export default new DataSource({
@@ -10,8 +9,7 @@ export default new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DATABASE,
-    //database: "dedalus-platform",
-    //entities: [], // Add ALL your entities here
+    //entities: [Account, Role], // Add ALL your entities here
     migrations: [__dirname + '/migrations/*.ts'],
     synchronize: false, // MUST BE FALSE for migrations! te estoy viendo Sihuar ojo.
 });
