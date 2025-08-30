@@ -17,8 +17,8 @@ export interface IAccountCommandService {
   handleRefreshToken(command: RefreshTokenCommand): Promise<{ token: string, refreshToken: string }>
   handleDeleteAccount(command: DeleteAccountCommand): Promise<void>
   handleChangePassword(command: ChangePasswordCommand): Promise<void>
-  handleCreateTokenForInvitation(command: CreateTokenForInvitationCommand): Promise<string>
-  handleValidateInvitationToken(command: ValidateInvitationTokenCommand): Promise<{ athleteType: string, availableSessions: number }>
+  /*handleCreateTokenForInvitation(command: CreateTokenForInvitationCommand): Promise<string>
+  handleValidateInvitationToken(command: ValidateInvitationTokenCommand): Promise<{ athleteType: string, availableSessions: number }>*/
   handleSeedAdminAccounts(command: SeedAdminAccountsCommand): Promise<void>
   handleUpdateAccountRole(command: UpdateAccountRoleCommand): Promise<void>
   handleRememberIdentity(command: RememberIdentityInformationCommand): Promise<{ id: number, username: string, rol: string }>

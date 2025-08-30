@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NotAcceptableException, ValidationError, ValidationPipe } from '@nestjs/common';
-import cookieParser from 'cookie-parser';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -26,8 +26,8 @@ async function bootstrap() {
     }));
 
     const config = new DocumentBuilder()
-        .setTitle('Triphasik Platform API')
-        .setDescription('Triphasik Platform API documentation')
+        .setTitle('Dedalus Platform API')
+        .setDescription('Dedalus Platform API documentation')
         .setVersion('1.0')
         .addSecurity('bearer', {
             type: 'http',
