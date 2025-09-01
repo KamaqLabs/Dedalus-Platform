@@ -1,0 +1,1 @@
+export const GUEST_PROFILE_REPOSITORY_TOKEN = Symbol('IGuestProfileRepositoryToken');
