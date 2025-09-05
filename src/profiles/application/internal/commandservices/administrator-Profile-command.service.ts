@@ -19,15 +19,10 @@ export class AdministratorProfileCommandService implements IAdministratorProfile
         private readonly eventBus: EventBus,
     ) {
     }
-
     HandleCreateAdministratorProfile(command: CreateAdministratorProfileCommand): Promise<{ administratorProfile: AdministratorProfile; }> {
         throw new Error("Method not implemented.");
     }
     HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand): Promise<{ administratorProfile: AdministratorProfile; }> {
         throw new Error("Method not implemented.");
     }
-
-
-
-
 }
