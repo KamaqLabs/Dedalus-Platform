@@ -5,6 +5,7 @@ import { AuthModule } from './iam/infrastructure/auth/auth.module';
 import { HashingModule } from './iam/infrastructure/hashing/hashing.module';
 import { IamModule } from './iam/iam.module';
 import { UnitOfWorkService } from './shared/infrastructure/persistence/typeorm/unit-of-work.service';
+import {ProfilesModule} from "./profiles/profiles.module";
 
 
 
@@ -30,6 +31,7 @@ import { UnitOfWorkService } from './shared/infrastructure/persistence/typeorm/u
         AuthModule,
         HashingModule,
         IamModule,
+        ProfilesModule,
         TypeOrmModule.forFeature([]),
     ],
     // providers: [AppService, AuthJwtService, CryptoService],
