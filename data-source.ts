@@ -9,7 +9,7 @@ export default new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DATABASE,
-    //entities: [Account, Role, AdministratorProfile, GuestProfile], // Add ALL your entities here
+    //entities: [Account, Role, AdministratorProfile, GuestProfile],
     migrations: [__dirname + '/migrations/*.ts'],
     synchronize: false, // MUST BE FALSE for migrations! te estoy viendo Sihuar ojo.
 });
