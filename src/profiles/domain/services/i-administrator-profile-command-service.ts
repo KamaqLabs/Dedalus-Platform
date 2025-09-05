@@ -5,5 +5,6 @@ import {AdministratorProfile} from "../model/aggregates/Administrator-profile";
 export interface IAdministratorProfileCommandService {
     HandleCreateAdministratorProfile(command: CreateAdministratorProfileCommand): Promise<{administratorProfile: AdministratorProfile}>;
     HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand): Promise<{administratorProfile: AdministratorProfile}>;
+
 }
 

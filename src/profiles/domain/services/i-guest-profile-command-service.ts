@@ -7,11 +7,15 @@ import { DestroyGuestNfcKeyCommand } from '../model/commands/destroy-guest-nfc-k
 import {GuestProfile} from "../model/aggregates/Guest-Profile";
 
 export interface IGuestProfileCommandService {
-    HandleCreateGuestProfile(command: CreateGuestProfileCommand): Promise<{guestProfile: GuestProfile}>;
-    HandleUpdateGuestPersonalInformation(command: UpdateGuestPersonalInformationCommand):  Promise<{guestProfile: GuestProfile}>;
-    HandleDeleteGuestProfile(command: DeleteGuestProfileCommand): Promise<{guestProfile: GuestProfile}>;
-    HandleChangeGuestProfileStatus(command: ChangeGuestProfileStatusCommand): Promise<{guestProfile: GuestProfile}>;
-    HandleAddGuestNfcKey(command: AddGuestNfcKeyCommand): Promise<{guestProfile: GuestProfile}>;
-    HandleDestroyGuestNfcKey(command: DestroyGuestNfcKeyCommand): Promise<{guestProfile: GuestProfile}>;
+    HandleCreateGuestProfile(command: CreateGuestProfileCommand): Promise<{guestProfile: GuestProfile, username: string}>;
+    HandleUpdateGuestPersonalInformation(command: UpdateGuestPersonalInformationCommand, guestId:number): Promise<{ guestProfile: GuestProfile, username: string }>
+    HandleDeleteGuestProfile(command: DeleteGuestProfileCommand): void;
+    HandleChangeGuestProfileStatus(command: ChangeGuestProfileStatusCommand):  Promise<GuestProfile>;
+    HandleAddGuestNfcKey(command: AddGuestNfcKeyCommand):  Promise<GuestProfile>;
+    HandleDestroyGuestNfcKey(command: DestroyGuestNfcKeyCommand):  Promise<GuestProfile>;
+
+    HandleActivateGuestProfile(guestProfileId: number): Promise<GuestProfile>;
+    HandleDeactivateGuestProfile(guestProfileId: number): Promise<GuestProfile>;
+
 }
 
