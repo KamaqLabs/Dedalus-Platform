@@ -6,8 +6,6 @@ import { UpdateAdministratorPersonalInformationCommand } from '../commands/updat
 @Entity()
 export class AdministratorProfile extends Profile{
 
-    @Column()
-    public hotelId: number;
 
     constructor() {
         super();
@@ -15,7 +13,6 @@ export class AdministratorProfile extends Profile{
 
     static ConstructAdministratorProfileFromCommand(command: CreateAdministratorProfileCommand): AdministratorProfile {
         const adminProfile = new AdministratorProfile();
-        adminProfile.hotelId = command.hotelId;
         Object.assign(adminProfile, Profile.create.call(this,
             null,
             command.name,

@@ -30,13 +30,15 @@ export abstract class Profile {
         name: string,
         lastName: string,
         dni: string,
-        email: string): T {
+        email: string,
+        phoneNumber:string): T {
         const profile = new this();
         profile.accountId = accountId;
         profile.name = name;
         profile.lastName = lastName;
         profile.dni = dni;
         profile.email = email;
+        profile.phoneNumber = phoneNumber;
 
         return profile;
     }
