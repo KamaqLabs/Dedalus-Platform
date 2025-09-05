@@ -42,10 +42,10 @@ export class Booking {
 
     // Constructor
 
-    static ConstructBookingFromCommand(command: CreateBookCommand): Booking {
+    static ConstructBookingFromCommand(command: CreateBookCommand, hotelId:number): Booking {
         const booking = new Booking();
         booking.guestId = command.guestId;
-        booking.hotelId = command.hotelId;
+        booking.hotelId = hotelId;
         booking.checkInDate = command.checkInDate;
         booking.checkOutDate = command.checkOutDate;
         booking.bookStatus = BookStatus.PENDING;
@@ -63,6 +63,10 @@ export class Booking {
 
     public updateStatus(status: BookStatus): void {
         this.bookStatus = status;
+    }
+
+    public addPrice(amount: number): void {
+        this.totalPrice += amount;
     }
 
     public isActive(): boolean {
