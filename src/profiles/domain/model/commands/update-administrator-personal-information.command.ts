@@ -19,4 +19,3 @@ export class UpdateAdministratorPersonalInformationCommand {
         this.phoneNumber = data.phoneNumber;
     }
 }
-
