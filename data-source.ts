@@ -1,5 +1,11 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
+import {Hotel} from "./src/hotel/domain/model/aggregates/Hotel";
+import {Account} from "./src/iam/domain/model/aggregates/account";
+import {Role} from "./src/iam/domain/model/entities/role";
+import {AdministratorProfile} from "./src/profiles/domain/model/aggregates/Administrator-profile";
+import {GuestProfile} from "./src/profiles/domain/model/aggregates/Guest-Profile";
+import {RoomClass} from "./src/hotel/domain/model/entites/RoomClass";
 dotenv.config();
 
 export default new DataSource({
@@ -9,7 +15,7 @@ export default new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DATABASE,
-    // entities: [Account, Role, AdministratorProfile, GuestProfile],
+    //entities: [Account, Role, AdministratorProfile, GuestProfile, Hotel, RoomClass],
     migrations: [__dirname + '/migrations/*.ts'],
     synchronize: false, // MUST BE FALSE for migrations! te estoy viendo Sihuar ojo.
 });

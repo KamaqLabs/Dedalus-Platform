@@ -26,6 +26,12 @@ export abstract class BaseRepository<TEntity> implements IBaseRepository<TEntity
         if (!entityToUpdate) throw new Error("Entity not found");
 
         return await this.ormRepo.save(entityToUpdate);
+
     }
+
+    async findAllAsync(): Promise<TEntity[]> {
+        return await this.ormRepo.find();
+    }
+
 
 }

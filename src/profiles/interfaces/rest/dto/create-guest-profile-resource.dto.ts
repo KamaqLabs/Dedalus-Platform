@@ -93,8 +93,8 @@ export class CreateGuestProfileResourceDto {
     })
     @IsNotEmpty()
     @IsString()
-    @Length(9, 15) // ✅ Corregido para coincidir con el ejemplo
-    @Matches(/^[\+]?[0-9\s\-\(\)]+$/, { message: 'Formato de teléfono inválido' }) // ✅ Agregado regex
+    @Length(9, 15)
+    @Matches(/^[\+]?[0-9\s\-\(\)]+$/, { message: 'Formato de teléfono inválido' })
     phoneNumber: string;
 
 }

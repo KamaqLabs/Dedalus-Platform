@@ -17,7 +17,7 @@ export class BookingRepository extends BaseRepository<Booking>
     ) {
         super(bookingRepository);
     }
-
+    
     async findBooksByCheckInDate(checkInDate: Date): Promise<Booking[]> {
         return this.bookingRepository.find({ where: { checkInDate } });
     }
@@ -61,7 +61,7 @@ export class BookingRepository extends BaseRepository<Booking>
             .andWhere('booking.checkInDate < :checkOut', { checkOut })
             .andWhere('booking.checkOutDate > :checkIn', { checkIn })
             .andWhere('booking.bookStatus NOT IN (:...cancelledStatuses)', {
-                cancelledStatuses: [BookStatus.CANCELLED, BookStatus.REJECTED]
+                cancelledStatuses: [BookStatus.CANCELLED]
             })
             .getMany();
     }
@@ -76,7 +76,7 @@ export class BookingRepository extends BaseRepository<Booking>
         const result = await this.bookingRepository.createQueryBuilder('booking')
             .select('SUM(booking.totalPrice)', 'total')
             .where('booking.hotelId = :hotelId', { hotelId })
-            .andWhere('booking.bookStatus = :status', { status: BookStatus.COMPLETED })
+            .andWhere('booking.bookStatus = :status', { status: BookStatus.CHECKED_OUT })
             .getRawOne();
         return result?.total || 0;
     }
