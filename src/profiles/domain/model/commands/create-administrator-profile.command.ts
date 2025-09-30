@@ -1,5 +1,7 @@
 export class CreateAdministratorProfileCommand {
     public readonly name: string;
+    public readonly username: string;
+    public readonly password: string;
     public readonly lastName: string;
     public readonly dni: string;
     public readonly email: string;

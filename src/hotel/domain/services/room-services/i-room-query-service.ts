@@ -8,12 +8,13 @@ import {RoomInformationResourceDto} from "../../../interfaces/rest/dto/room-info
 import {Room} from "../../model/aggregates/Room";
 
 export interface IRoomQueryService{
-    HandleGetRoomById(roomId: string): Promise<any>;
+    HandleGetRoomById(roomId: number): Promise<RoomInformationResourceDto>;
     HandleGetRoomsByClassId(query: GetRoomByClassIdQuery): Promise<Room[]>;
     HandleGetRoomsByFloorId(query: GetRoomByFloorNumberQuery): Promise<RoomInformationResourceDto[]>;
-    HandleGetRoomsByHotelId(query: GetRoomByHotelIdQuery): Promise<RoomInformationResourceDto>;
+    HandleGetRoomsByHotelId(query: GetRoomByHotelIdQuery): Promise<RoomInformationResourceDto[]>;
     HandleGetRoomByNfcKey(query : GetRoomByNfcKeyQuery): Promise<Room>;
     HandleGetRoomByRoomNumber(query: GetRoomByRoomNumberQuery): Promise<RoomInformationResourceDto>;
     HandleGetRoomsByStatus(query: GetRoomByStatusQuery): Promise<RoomInformationResourceDto[]>;
+    HandleRoomExists(roomId: number): Promise<boolean>;
 
 }

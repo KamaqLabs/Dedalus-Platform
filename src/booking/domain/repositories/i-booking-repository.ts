@@ -10,6 +10,22 @@ export interface IBookingRepository<AdministratorProfile> extends IBaseRepositor
     findBooksByStatus(status: BookStatus): Promise<Booking[]>;
     findBooksByGuestId(guestId: number): Promise<Booking[]>;
     findBooksByHotelId(hotelId: number): Promise<Booking[]>;
-    findBooksByNfcKey(nfcKey: string): Promise<Booking[]>;
+    findBookByRoomId(roomId: number): Promise<Booking>;
+
+    isRoomAvailable(roomId: number, checkInDate: Date, checkOutDate: Date): Promise<boolean>;
+    findConflictingBookings(roomId: number, checkInDate: Date, checkOutDate: Date): Promise<Booking[]>;
+    findAvailableRoomsByDateRange(hotelId: number, checkInDate: Date, checkOutDate: Date): Promise<number[]>;
+
+    findBookingsReadyForReminder(tomorrow: Date, dayAfterTomorrow: Date): Promise<Booking[]>;
+    findBookingsForStatusUpdate(): Promise<{
+        readyForCheckIn: Booking[],
+        pendingConfirmation: Booking[]
+    }>;
+
+    updateBookingsToCheckedIn(bookingIds: number[]): Promise<void>
+
+    updateBookingsToConfirmed(bookingIds: number[]): Promise<void>
+
+    updateBookingsToCheckedInWithRoomStatus(bookingIds: number[]): Promise<void>
 
 }

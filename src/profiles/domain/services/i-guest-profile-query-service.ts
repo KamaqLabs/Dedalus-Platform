@@ -12,6 +12,7 @@ export interface IGuestProfileQueryService {
     HandleGetGuestProfileByDni(dni: string): Promise<GuestProfile | null>;
     HandleGetGuestProfileByEmail(email: string): Promise<GuestProfile | null>;
     HandleGetGuestProfilesByStatus(status: string): Promise<GuestProfile[]>;
+    HandleGetGuestProfileByAccountId(accountId: number): Promise<{guestProfile: GuestProfile, username: string}>;
 
 }
 

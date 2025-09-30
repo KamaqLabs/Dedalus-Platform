@@ -21,6 +21,18 @@ export class GuestProfileQueryService implements IGuestProfileQueryService {
         @Inject() private readonly externalIamService: ExternalIamService
     ) {}
 
+    async HandleGetGuestProfileByAccountId(accountId: number): Promise<{guestProfile: GuestProfile, username: string}> {
+
+        const guestProfile = await this.guestProfileRepository.findGuestProfileByAccountId(accountId);
+
+        if(!guestProfile) {
+            throw new ProfileNotFoundError(accountId);
+        }
+        const username = await this.externalIamService.obtainUsernameByAccountId(guestProfile.accountId);
+
+        return {guestProfile, username};
+    }
+
     public async HandleGetGuestProfileById(query: GetGuestProfileByIdQuery): Promise<{guestProfile: GuestProfile, username: string}> {
         const guestProfile = await this.guestProfileRepository.findByIdAsync(query.id);
         if(!guestProfile) {

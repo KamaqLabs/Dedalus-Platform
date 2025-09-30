@@ -3,5 +3,6 @@ import {GetAdministratorProfileByIdQuery} from "../model/queries/get-administrat
 
 export interface IAdministratorProfileQueryService {
     HandleGetAdministratorProfileById(query: GetAdministratorProfileByIdQuery): Promise<AdministratorProfile>;
+    HandleGetAdministratorProfileByAccountId(accountId: number): Promise<AdministratorProfile>;
 }
 

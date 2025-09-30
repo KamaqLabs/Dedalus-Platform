@@ -1,11 +1,14 @@
 import {Booking} from "../../../../domain/model/aggregates/Booking";
 import {IBookingRepository} from "../../../../domain/repositories/i-booking-repository";
 import {BaseRepository} from "../../../../../shared/infrastructure/persistence/typeorm/repositories/base-repository";
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {GuestProfile} from "../../../../../profiles/domain/model/aggregates/Guest-Profile";
 import {Repository, In} from "typeorm";
 import {BookStatus} from "../../../../domain/model/valueObjects/BookStatus";
+import {Room} from "../../../../../hotel/domain/model/aggregates/Room";
+import {RoomStatus} from "../../../../../hotel/domain/model/valueobjects/RoomStatus";
+import {ToPeruvianTimeZoneService} from "../../../../application/internal/utils/to-peruvian-time-zone.service";
 
 
 @Injectable()
@@ -13,11 +16,13 @@ export class BookingRepository extends BaseRepository<Booking>
     implements IBookingRepository<Booking> {
     constructor(
         @InjectRepository(Booking)
-        private readonly bookingRepository: Repository<Booking>
+        private readonly bookingRepository: Repository<Booking>,
+        @Inject()
+        private readonly peruTimeService: ToPeruvianTimeZoneService
     ) {
         super(bookingRepository);
     }
-    
+
     async findBooksByCheckInDate(checkInDate: Date): Promise<Booking[]> {
         return this.bookingRepository.find({ where: { checkInDate } });
     }
@@ -34,81 +39,157 @@ export class BookingRepository extends BaseRepository<Booking>
         return this.bookingRepository.find({ where: { hotelId } });
     }
 
-    async findBooksByNfcKey(nfcKey: string): Promise<Booking[]> {
-        return this.bookingRepository.find({ where: { nfcKey } });
+    findBookByRoomId(roomId: number): Promise<Booking> {
+        throw new Error("Method not implemented.");
     }
 
-    // Nuevas funciones recomendadas para el repository:
-    async findBooksByDateRange(startDate: Date, endDate: Date): Promise<Booking[]> {
-        return this.bookingRepository.createQueryBuilder('booking')
-            .where('booking.checkInDate >= :startDate', { startDate })
-            .andWhere('booking.checkOutDate <= :endDate', { endDate })
+
+
+
+    async isRoomAvailable(roomId: number, checkInDate: Date, checkOutDate: Date): Promise<boolean> {
+        const conflictingBookings = await this.bookingRepository
+            .createQueryBuilder('booking')
+            .where('booking.roomId = :roomId', { roomId })
+            .andWhere('booking.bookStatus IN (:...activeStatuses)', {
+                activeStatuses: [BookStatus.CONFIRMED, BookStatus.CHECKED_IN, BookStatus.PENDING]
+            })
+            .andWhere(
+                '(booking.checkInDate < :checkOutDate AND booking.checkOutDate > :checkInDate)',
+                { checkInDate, checkOutDate }
+            )
+            .getCount();
+
+        return conflictingBookings === 0;
+    }
+
+    async findConflictingBookings(roomId: number, checkInDate: Date, checkOutDate: Date): Promise<Booking[]> {
+        return await this.bookingRepository
+            .createQueryBuilder('booking')
+            .where('booking.roomId = :roomId', { roomId })
+            .andWhere('booking.bookStatus IN (:...activeStatuses)', {
+                activeStatuses: [BookStatus.CONFIRMED, BookStatus.CHECKED_IN, BookStatus.PENDING]
+            })
+            .andWhere(
+                '(booking.checkInDate < :checkOutDate AND booking.checkOutDate > :checkInDate)',
+                { checkInDate, checkOutDate }
+            )
+            .orderBy('booking.checkInDate', 'ASC')
             .getMany();
     }
 
-    async findActiveBooksByHotelId(hotelId: number): Promise<Booking[]> {
-        return this.bookingRepository.find({
-            where: {
-                hotelId,
-                bookStatus: In([BookStatus.CONFIRMED, BookStatus.CHECKED_IN])
-            }
-        });
+    async findAvailableRoomsByDateRange(hotelId: number, checkInDate: Date, checkOutDate: Date): Promise<number[]> {
+
+        const occupiedRoomsSubquery = this.bookingRepository
+            .createQueryBuilder('booking')
+            .select('DISTINCT booking.roomId')
+            .where('booking.hotelId = :hotelId', { hotelId })
+            .andWhere('booking.bookStatus IN (:...activeStatuses)', {
+                activeStatuses: [BookStatus.CONFIRMED, BookStatus.CHECKED_IN, BookStatus.PENDING]
+            })
+            .andWhere(
+                '(booking.checkInDate < :checkOutDate AND booking.checkOutDate > :checkInDate)',
+                { checkInDate, checkOutDate }
+            );
+
+
+        const occupiedRooms = await occupiedRoomsSubquery.getRawMany();
+        const occupiedRoomIds = occupiedRooms.map(room => room.booking_room_id);
+
+        return occupiedRoomIds;
     }
 
-    async findOverlappingBookings(guestId: number, checkIn: Date, checkOut: Date): Promise<Booking[]> {
-        return this.bookingRepository.createQueryBuilder('booking')
-            .where('booking.guestId = :guestId', { guestId })
-            .andWhere('booking.checkInDate < :checkOut', { checkOut })
-            .andWhere('booking.checkOutDate > :checkIn', { checkIn })
-            .andWhere('booking.bookStatus NOT IN (:...cancelledStatuses)', {
-                cancelledStatuses: [BookStatus.CANCELLED]
+    async findBookingsReadyForReminder(tomorrow: Date, dayAfterTomorrow: Date): Promise<Booking[]> {
+        return await this.bookingRepository
+            .createQueryBuilder('booking')
+            .where('booking.bookStatus = :status', { status: BookStatus.PENDING })
+            .andWhere('booking.checkInDate >= :tomorrow', { tomorrow })
+            .andWhere('booking.checkInDate < :dayAfter', { dayAfter: dayAfterTomorrow })
+            .getMany();
+    }
+
+    async findBookingsForStatusUpdate(): Promise<{ readyForCheckIn: Booking[], pendingConfirmation: Booking[] }> {
+        const now = this.peruTimeService.getCurrentPeruvianTime(); // ✅ Hora peruana
+        const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+        const allBookings = await this.bookingRepository
+            .createQueryBuilder('booking')
+            .where('(booking.bookStatus = :pending AND booking.checkInDate <= :in24Hours AND booking.checkInDate > :now)', {
+                pending: BookStatus.PENDING,
+                in24Hours,
+                now
+            })
+            .orWhere('(booking.bookStatus = :confirmed AND booking.checkInDate <= :now)', {
+                confirmed: BookStatus.CONFIRMED,
+                now
             })
             .getMany();
+
+        const readyForCheckIn = allBookings.filter(booking =>
+            booking.bookStatus === BookStatus.CONFIRMED && booking.checkInDate <= now
+        );
+
+        const pendingConfirmation = allBookings.filter(booking =>
+            booking.bookStatus === BookStatus.PENDING &&
+            booking.checkInDate > now &&
+            booking.checkInDate <= in24Hours
+        );
+
+        return { readyForCheckIn, pendingConfirmation };
     }
 
-    async countBooksByStatus(hotelId: number, status: BookStatus): Promise<number> {
-        return this.bookingRepository.count({
-            where: { hotelId, bookStatus: status }
-        });
+    async updateBookingsToCheckedIn(bookingIds: number[]): Promise<void> {
+        if (bookingIds.length === 0) return;
+
+        await this.bookingRepository
+            .createQueryBuilder()
+            .update(Booking)
+            .set({ bookStatus: BookStatus.CHECKED_IN })
+            .whereInIds(bookingIds)
+            .execute();
     }
 
-    async calculateTotalRevenue(hotelId: number): Promise<number> {
-        const result = await this.bookingRepository.createQueryBuilder('booking')
-            .select('SUM(booking.totalPrice)', 'total')
-            .where('booking.hotelId = :hotelId', { hotelId })
-            .andWhere('booking.bookStatus = :status', { status: BookStatus.CHECKED_OUT })
-            .getRawOne();
-        return result?.total || 0;
+    async updateBookingsToConfirmed(bookingIds: number[]): Promise<void> {
+        if (bookingIds.length === 0) return;
+
+        await this.bookingRepository
+            .createQueryBuilder()
+            .update(Booking)
+            .set({ bookStatus: BookStatus.CONFIRMED })
+            .whereInIds(bookingIds)
+            .execute();
     }
 
-    async findUpcomingCheckIns(hotelId: number, date: Date): Promise<Booking[]> {
-        return this.bookingRepository.find({
-            where: {
-                hotelId,
-                checkInDate: date,
-                bookStatus: BookStatus.CONFIRMED
+    async updateBookingsToCheckedInWithRoomStatus(bookingIds: number[]): Promise<void> {
+        if (bookingIds.length === 0) return;
+
+        await this.bookingRepository.manager.transaction(async transactionalEntityManager => {
+            const bookings = await transactionalEntityManager
+                .createQueryBuilder(Booking, 'booking')
+                .select('booking.roomId')
+                .whereInIds(bookingIds)
+                .getMany();
+
+            const roomIds = bookings.map(booking => booking.roomId);
+
+            await transactionalEntityManager
+                .createQueryBuilder()
+                .update(Booking)
+                .set({ bookStatus: BookStatus.CHECKED_IN })
+                .whereInIds(bookingIds)
+                .execute();
+
+            if (roomIds.length > 0) {
+                await transactionalEntityManager
+                    .createQueryBuilder()
+                    .update(Room)
+                    .set({ roomStatus: RoomStatus.OCCUPIED })
+                    .whereInIds(roomIds)
+                    .execute();
             }
         });
     }
 
-    async findUpcomingCheckOuts(hotelId: number, date: Date): Promise<Booking[]> {
-        return this.bookingRepository.find({
-            where: {
-                hotelId,
-                checkOutDate: date,
-                bookStatus: BookStatus.CHECKED_IN
-            }
-        });
-    }
 
-    async findExpiredPendingBookings(hotelId: number, expirationHours: number): Promise<Booking[]> {
-        const expirationDate = new Date();
-        expirationDate.setHours(expirationDate.getHours() - expirationHours);
 
-        return this.bookingRepository.createQueryBuilder('booking')
-            .where('booking.hotelId = :hotelId', { hotelId })
-            .andWhere('booking.bookStatus = :status', { status: BookStatus.PENDING })
-            .andWhere('booking.createdAt < :expirationDate', { expirationDate })
-            .getMany();
-    }
+
 }

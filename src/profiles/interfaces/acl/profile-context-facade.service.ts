@@ -8,6 +8,8 @@ import {
     AdministratorProfileQueryService
 } from "../../application/internal/queryservices/administrator-profile-query.service";
 import {AdministratorProfile} from "../../domain/model/aggregates/Administrator-profile";
+import {GuestProfileCommandService} from "../../application/internal/commandservices/guest-profile-command.service";
+import {AddGuestNfcKeyCommand} from "../../domain/model/commands/add-guest-nfc-key.command";
 
 
 @Injectable()
@@ -16,7 +18,9 @@ export class ProfileContextFacadeService {
         @Inject()
         private readonly guestProfileQueryService: GuestProfileQueryService,
         @Inject()
-        readonly administratorProfileQueryService: AdministratorProfileQueryService
+        readonly administratorProfileQueryService: AdministratorProfileQueryService,
+        @Inject()
+        readonly guestProfileCommandService: GuestProfileCommandService
     ) {
     }
 
@@ -33,22 +37,27 @@ export class ProfileContextFacadeService {
         const guestInformation =
             await this.guestProfileQueryService.HandleGetGuestProfileById(query);
 
-        return guestInformation?.guestProfile ? true : false;
+        return !!guestInformation?.guestProfile;
     }
 
-    public async IsGuestProfileExistByDni(dni: string): Promise<boolean> {
-        const guestInformation =
-            await this.guestProfileQueryService.HandleGetGuestProfileByDni(dni);
-
-        return guestInformation ? true : false;
-    }
 
     public async IsGuestProfileExistByGuestCode(guestCode: string): Promise<boolean> {
         const query = new GetGuestProfileByGuestCodeQuery(guestCode);
         const guestInformation =
             await this.guestProfileQueryService.HandleGetGuestProfileByGuestCode(query);
 
-        return guestInformation ? true : false;
+        return !!guestInformation;
+    }
+
+    public async AddNfcKeyToGuestProfile(guestProfileId: number, nfcKey: string): Promise<void> {
+        const guestProfile = await this.FetchGuestProfileById(guestProfileId);
+        if (!guestProfile) {
+            throw new Error('Guest profile not found');
+        }
+        guestProfile.AssignNfcKey(nfcKey);
+        const data = { guestProfileId, nfcKey };
+        await this.guestProfileCommandService.HandleAddGuestNfcKey(new AddGuestNfcKeyCommand(data));
+        // Here you would typically save the updated guest profile back to the repository
     }
 
     //administrator profile methods will be here
@@ -60,8 +69,8 @@ export class ProfileContextFacadeService {
             await this.administratorProfileQueryService.HandleGetAdministratorProfileById(
                 query,
             );
-        if (!administratorProfile) return false;
-        return true;
+        return (!!administratorProfile);
+
     }
 
     public async getAdministratorInformation(

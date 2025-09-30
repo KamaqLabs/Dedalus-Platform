@@ -9,4 +9,5 @@ export interface IGuestProfileRepository<GuestProfile> extends IBaseRepository<G
     findGuestProfileByEmail(email: string): Promise<GuestProfile | null>;
     findGuestProfileByStatus(status: EStatus): Promise<GuestProfile[]>;
     findAllGuestProfiles(): Promise<GuestProfile[]>
+    findGuestProfileByAccountId(accountId: number): Promise<GuestProfile>;
 }

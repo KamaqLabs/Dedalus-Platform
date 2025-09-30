@@ -1,24 +1,37 @@
-import {GuestProfileRepository} from "../../../infrastructure/persistence/typeorm/repositories/GuestProfileRepository";
 import {Inject, Injectable} from "@nestjs/common";
-import {GUEST_PROFILE_REPOSITORY_TOKEN} from "../../../domain/repositories/guest-profile-repository.token";
 import {
     ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN
 } from "../../../domain/repositories/administrator-profile-repository.token";
-import {IGuestProfileQueryService} from "../../../domain/services/i-guest-profile-query-service";
 import {IAdministratorProfileQueryService} from "../../../domain/services/i-administrator-profile-query-service";
 import { AdministratorProfile } from "src/profiles/domain/model/aggregates/Administrator-profile";
 import { GetAdministratorProfileByIdQuery } from "src/profiles/domain/model/queries/get-administrator-profile-by-id.query";
+import {ProfileNotFoundError} from "../../Errors/profile-not-found.error";
+import {
+    AdministratorProfileRepository
+} from "../../../infrastructure/persistence/typeorm/repositories/AdministratorProfileRepository";
 
 @Injectable()
 export class AdministratorProfileQueryService implements IAdministratorProfileQueryService {
     constructor(
         @Inject(ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN)
-        private readonly guestProfileRepository: GuestProfileRepository
+        private readonly administratorRepository: AdministratorProfileRepository,
     ) {
     }
 
-    HandleGetAdministratorProfileById(query: GetAdministratorProfileByIdQuery): Promise<AdministratorProfile> {
-        return this.guestProfileRepository.findByIdAsync(query.id);
+    async HandleGetAdministratorProfileById(query: GetAdministratorProfileByIdQuery): Promise<AdministratorProfile> {
+        const administratorProfile = await this.administratorRepository.findByIdAsync(query.id);
+        if(!administratorProfile) {
+            throw new ProfileNotFoundError(query.id);
+        }
+        return administratorProfile;
+    }
+
+    async HandleGetAdministratorProfileByAccountId(accountId: number): Promise<AdministratorProfile> {
+        const administratorProfile = await this.administratorRepository.findProfileByAccountIdAsync(accountId);
+        if(!administratorProfile) {
+            throw new ProfileNotFoundError(accountId);
+        }
+        return administratorProfile;
     }
 
 }

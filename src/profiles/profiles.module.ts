@@ -18,11 +18,16 @@ import {
     AdministratorProfileRepository
 } from "./infrastructure/persistence/typeorm/repositories/AdministratorProfileRepository";
 import {GuestProfileController} from "./interfaces/rest/guest-profile.controller";
+import {AdministratorProfileController} from "./interfaces/rest/administrator-profile.controller";
+import {
+    AdministratorProfileCommandService
+} from "./application/internal/commandservices/administrator-Profile-command.service";
 
 @Module({
     imports: [TypeOrmModule.forFeature([GuestProfile, AdministratorProfile]), IamModule, CqrsModule],
     providers: [
         GuestProfileCommandService,
+        AdministratorProfileCommandService,
         {
             provide: GUEST_PROFILE_REPOSITORY_TOKEN,
             useClass: GuestProfileRepository,
@@ -34,9 +39,10 @@ import {GuestProfileController} from "./interfaces/rest/guest-profile.controller
         ExternalIamService,
         GuestProfileQueryService,
         AdministratorProfileQueryService,
+        AdministratorProfileQueryService,
         ProfileContextFacadeService
     ],
     exports: [GUEST_PROFILE_REPOSITORY_TOKEN, ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN, ProfileContextFacadeService],
-    controllers: [GuestProfileController],
+    controllers: [GuestProfileController,AdministratorProfileController],
 })
 export class ProfilesModule {}

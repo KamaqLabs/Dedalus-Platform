@@ -18,7 +18,6 @@ export class GuestProfile extends Profile{
 
     @BeforeInsert()
     generateGuestCode() {
-        // Generate an 9-digit random number as a string
         this.guestCode = Math.floor(Math.random() * (999999999 - 100000000 + 1) + 100000000).toString();
     }
 

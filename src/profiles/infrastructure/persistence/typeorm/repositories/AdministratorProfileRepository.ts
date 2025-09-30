@@ -19,6 +19,18 @@ export class AdministratorProfileRepository extends BaseRepository<Administrator
       return this.administratorProfileRepository.findOne({ where: { accountId } });
     }
 
+    async findAdministratorProfileByEmailAsync(email: string): Promise<AdministratorProfile | null> {
+      return this.administratorProfileRepository.findOne({ where: { email } });
+    }
+
+    async findAdministratorByDniAsync(dni: string): Promise<AdministratorProfile | null> {
+      return this.administratorProfileRepository.findOne({ where: { dni } });
+    }
+
+    async findAdministratorByAccountId(accountId: number): Promise<AdministratorProfile | null> {
+      return this.administratorProfileRepository.findOne({ where: { accountId } });
+    }
+
 
 }
 

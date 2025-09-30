@@ -9,6 +9,9 @@ import {IAdministratorProfileRepository} from "../../../domain/repositories/i-ad
 import {AdministratorProfile} from "../../../domain/model/aggregates/Administrator-profile";
 import { CreateAdministratorProfileCommand } from "src/profiles/domain/model/commands/create-administrator-profile.command";
 import { UpdateAdministratorPersonalInformationCommand } from "src/profiles/domain/model/commands/update-administrator-personal-information.command";
+import {DniExistsError} from "../../Errors/dni-exists.error";
+import {EmailExistsError} from "../../Errors/email-exists.error";
+import {ProfileNotFoundError} from "../../Errors/profile-not-found.error";
 
 @Injectable()
 export class AdministratorProfileCommandService implements IAdministratorProfileCommandService {
@@ -19,10 +22,47 @@ export class AdministratorProfileCommandService implements IAdministratorProfile
         private readonly eventBus: EventBus,
     ) {
     }
-    HandleCreateAdministratorProfile(command: CreateAdministratorProfileCommand): Promise<{ administratorProfile: AdministratorProfile; }> {
-        throw new Error("Method not implemented.");
+    async HandleCreateAdministratorProfile(command: CreateAdministratorProfileCommand, hotelId: number): Promise<AdministratorProfile> {
+        let accountId =0;
+        try{
+            const profileFoundByDni = await this.administratorProfileRepository.findAdministratorByDniAsync(command.dni);
+            if(profileFoundByDni) throw new DniExistsError();
+            const profileFoundByEmail = await this.administratorProfileRepository.findAdministratorProfileByEmailAsync(command.email);
+            if(profileFoundByEmail) throw new EmailExistsError();
+
+            accountId = await this.externalIamService.createAccount(command.username,command.password,"ADMIN");
+
+            const administratorProfile = AdministratorProfile.ConstructAdministratorProfileFromCommand(command,hotelId);
+            administratorProfile.setAccountId(accountId);
+
+            return await this.administratorProfileRepository.addAsync(administratorProfile);
+        }catch (error) {
+
+        if(accountId) {
+            try {
+                await this.externalIamService.deleteAccount(accountId);
+            } catch (error) {
+                console.error('Error deleting account', error);
+            }
+        }
+        throw error;
+    } finally {
+}
     }
-    HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand): Promise<{ administratorProfile: AdministratorProfile; }> {
-        throw new Error("Method not implemented.");
+    async HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand, administratorId:number): Promise<{ administratorProfile: AdministratorProfile; }> {
+        const administratorProfile = await this.administratorProfileRepository.findByIdAsync(administratorId);
+
+        const profileFoundByDni = await this.administratorProfileRepository.findAdministratorByDniAsync(command.dni);
+        if(profileFoundByDni) throw new DniExistsError();
+        const profileFoundByEmail = await this.administratorProfileRepository.findAdministratorProfileByEmailAsync(command.email);
+        if(profileFoundByEmail) throw new EmailExistsError();
+
+
+        if(!administratorProfile) throw new ProfileNotFoundError(administratorId);
+        administratorProfile.UpdatePersonalInformation(command);
+        const updatedProfile = await this.administratorProfileRepository.updateAsync(administratorProfile);
+        return {
+            administratorProfile: updatedProfile
+        };
     }
 }

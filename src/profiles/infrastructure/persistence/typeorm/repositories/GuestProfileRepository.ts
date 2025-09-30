@@ -16,6 +16,10 @@ export class GuestProfileRepository extends BaseRepository<GuestProfile>
     super(guestProfileRepository);
   }
 
+    findGuestProfileByAccountId(accountId: number): Promise<GuestProfile> {
+        return this.guestProfileRepository.findOne({ where: { accountId } });
+    }
+
     async findGuestProfileByDni(dni: string): Promise<GuestProfile> {
         return this.guestProfileRepository.findOne({ where: { dni } });
     }

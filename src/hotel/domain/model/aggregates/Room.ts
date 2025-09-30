@@ -21,58 +21,64 @@ export class Room {
     @Column({ name: 'nfc_key', type: 'varchar', length: 100, nullable: true, default: null })
     nfcKey: string | null;
 
-    @Column("simple-array")
+    @Column({ name: 'modules_id', type: 'json' })
     modulesId: number[];
 
-    @Column({ name: 'status', type: 'enum', enum: RoomStatus, default: RoomStatus.AVAILABLE })
+    @Column({ name: 'room_status', type: 'enum', enum: RoomStatus, default: RoomStatus.AVAILABLE })
     roomStatus: RoomStatus;
 
     @Column({ name: 'room_class_id', type: 'int', nullable: false })
     roomClassId: number;
 
-    static ConstructRoomFromCommand(command: CreateRoomCommand){
+    static ConstructRoomFromCommand(command: CreateRoomCommand, hotelId:number){
         const room = new Room();
         room.roomNumber = command.roomNumber;
+        room.hotelId= hotelId;
         room.floor = command.floor;
         room.nfcKey = null;
-        room.modulesId = command.modules;
+        room.modulesId = [];
         room.roomStatus = command.roomStatus || RoomStatus.AVAILABLE;
         room.roomClassId = command.roomClassId;
         return room;
     }
 
+    static UpdateRoomFromCommand(room: Room, command: UpdateRoomCommand): Room{
+        room.roomNumber = command.roomNumber || room.roomNumber;
+        room.floor = command.floor || room.floor;
+        room.roomClassId = command.roomClassId || room.roomClassId;
+        return room;
+    }
 
-
-
-    static AddNfcKey(room: Room, nfcKey: string): Room{
+    public static AddNfcKey(room: Room, nfcKey: string): Room{
         room.nfcKey = nfcKey;
         return room;
     }
 
-    static DeleteNfcKey(room: Room): Room{
+    public static DeleteNfcKey(room: Room): Room{
         room.nfcKey = null;
         return room;
     }
 
-    static UpdateRoomStatus(room: Room, status: RoomStatus): Room{
+    public static UpdateRoomStatus(room: Room, status: RoomStatus): Room{
         room.roomStatus = status;
         return room;
     }
 
-    static UpdateRoomClass(room: Room, roomClassId: number): Room{
+    public static UpdateRoomClass(room: Room, roomClassId: number): Room{
         room.roomClassId = roomClassId;
         return room;
     }
 
-    static AddModule(room: Room, moduleId: number): Room{
+    public static AddModule(room: Room, moduleId: number): Room{
         if(!room.modulesId.includes(moduleId)){
             room.modulesId.push(moduleId);
         }
         return room;
     }
 
-    static RemoveModule(room: Room, moduleId: number): Room{
+    public static RemoveModule(room: Room, moduleId: number): Room{
         room.modulesId = room.modulesId.filter(id => id !== moduleId);
         return room;
     }
+
 }

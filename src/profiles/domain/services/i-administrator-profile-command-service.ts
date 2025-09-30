@@ -3,8 +3,8 @@ import { UpdateAdministratorPersonalInformationCommand } from '../model/commands
 import {AdministratorProfile} from "../model/aggregates/Administrator-profile";
 
 export interface IAdministratorProfileCommandService {
-    HandleCreateAdministratorProfile(command: CreateAdministratorProfileCommand): Promise<{administratorProfile: AdministratorProfile}>;
-    HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand): Promise<{administratorProfile: AdministratorProfile}>;
+    HandleCreateAdministratorProfile(command: CreateAdministratorProfileCommand, hotelId: number): Promise<AdministratorProfile>;
+    HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand, administratorId:number): Promise<{administratorProfile: AdministratorProfile}>;
 
 }
 

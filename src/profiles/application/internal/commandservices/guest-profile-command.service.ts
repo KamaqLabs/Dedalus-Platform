@@ -58,6 +58,12 @@ export class GuestProfileCommandService implements IGuestProfileCommandService {
 
         const guestProfile = await this.guestProfileRepository.findByIdAsync(guestId);
         if(!guestProfile) throw new ProfileNotFoundError(guestId);
+
+        const profileFoundByDni = await this.guestProfileRepository.findGuestProfileByDni(command.dni);
+        if(profileFoundByDni) throw new DniExistsError();
+        const profileFoundByEmail = await this.guestProfileRepository.findGuestProfileByEmail(command.email);
+        if(profileFoundByEmail) throw new EmailExistsError();
+
         guestProfile.UpdatePersonalInformation(command);
         const username = await this.externalIamService.obtainUsernameByAccountId(guestProfile.accountId);
         const updatedProfile = await this.guestProfileRepository.updateAsync(guestProfile);
@@ -110,4 +116,6 @@ export class GuestProfileCommandService implements IGuestProfileCommandService {
         guestProfile.DeactivateGuestProfile();
         return await this.guestProfileRepository.updateAsync(guestProfile);
     }
+
+
 }

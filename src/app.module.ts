@@ -8,6 +8,9 @@ import { UnitOfWorkService } from './shared/infrastructure/persistence/typeorm/u
 import {ProfilesModule} from "./profiles/profiles.module";
 import {HotelsModule} from "./hotel/hotels.module";
 import {RoomClassModule} from "./hotel/room-class.module";
+import {RoomModule} from "./hotel/room.module";
+import {BookingModule} from "./booking/booking.module";
+import {ScheduleModule} from "@nestjs/schedule";
 
 
 
@@ -36,7 +39,10 @@ import {RoomClassModule} from "./hotel/room-class.module";
         ProfilesModule,
         HotelsModule,
         RoomClassModule,
+        RoomModule,
+        BookingModule,
         TypeOrmModule.forFeature([]),
+        ScheduleModule.forRoot(),
     ],
     // providers: [AppService, AuthJwtService, CryptoService],
     providers: [UnitOfWorkService],

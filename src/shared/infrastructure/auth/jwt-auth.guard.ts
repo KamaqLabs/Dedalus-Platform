@@ -8,13 +8,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const request = context.switchToHttp().getRequest<Request>();
 
     const token = request.cookies?.token;
-/*
-    if (!token) {
-          const authHeader = request.headers.authorization;
-          if (authHeader?.startsWith('Bearer ')) {
-              token = authHeader.substring(7);
-          }
-    }*/
+
+
+
 
     if (!token) {
       throw new UnauthorizedException('No authentication token found in cookies');
@@ -26,3 +22,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
 }
+
+
+/*
+if (!token) {
+    const authHeader = request.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    }
+}*/

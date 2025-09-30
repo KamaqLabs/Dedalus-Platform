@@ -1,10 +1,10 @@
 export class RemoveRoomModuleCommand {
     public readonly id: number;
-    public readonly module: string;
+    public readonly module: number;
 
     constructor(data: {
         id: number;
-        module: string;
+        module: number;
     }) {
         this.id = data.id;
         this.module = data.module;

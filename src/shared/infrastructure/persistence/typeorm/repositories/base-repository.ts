@@ -17,7 +17,10 @@ export abstract class BaseRepository<TEntity> implements IBaseRepository<TEntity
     }
 
     async findByIdAsync(id: number): Promise<TEntity | null> {
-        return await this.ormRepo.findOne({where: {id} as any}); //Any?
+        return await this.ormRepo.findOne({
+            where: { id } as any,
+            select: undefined
+        });
     }
 
     async updateAsync(entity: TEntity, manager?: EntityManager): Promise<TEntity> {

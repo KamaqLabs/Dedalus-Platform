@@ -1,1 +1,1 @@
-export const BookingRepositoryToken =  Symbol("IBookingRepositoryToken");
+export const BOOKING_REPOSITORY_TOKEN =  Symbol("IBookingRepositoryToken");

@@ -1,7 +1,7 @@
 import {GuestProfileCommandService} from "../../application/internal/commandservices/guest-profile-command.service";
 import {GuestProfileQueryService} from "../../application/internal/queryservices/guest-profile-query.service";
 import {ApiBearerAuth, ApiOperation, ApiParam, ApiTags} from "@nestjs/swagger";
-import {Body, Controller, Get, Param, Post, Put, UseGuards} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post, Put, UseFilters, UseGuards, UsePipes, ValidationPipe} from "@nestjs/common";
 import {GuestProfileResourceDto} from "./dto/guest-profile-resoruce.dto";
 import {GetGuestProfileByIdQuery} from "../../domain/model/queries/get-guest-profile-by-id.query";
 import {JwtAuthGuard} from "../../../shared/infrastructure/auth/jwt-auth.guard";
@@ -11,11 +11,13 @@ import {UpdateGuestPersonalInformationResourceDto} from "./dto/update-guest-pers
 import {
     UpdateGuestPersonalInformationCommand
 } from "../../domain/model/commands/update-guest-personal-information.command";
+import {ProfileApplicationExceptionFilter} from "../filters/profile-application-exception.filter";
 
 
 @ApiBearerAuth()
+@UseFilters(ProfileApplicationExceptionFilter)
 @ApiTags('Profiles')
-@Controller('api/v1/profiles/guest-profiles')
+@Controller('api/v1/profile/guest-profiles')
 export class GuestProfileController {
     constructor(
       private readonly guestProfileCommandService: GuestProfileCommandService,
@@ -30,6 +32,7 @@ export class GuestProfileController {
     })
     @Get(':id')
     @ApiParam({ name: 'id', required: true, type: Number, example: 1 })
+    @UsePipes(new ValidationPipe())
     async GetGuestProfileById(@Param('id') id: number):Promise<GuestProfileResourceDto> {
 
         const query = new GetGuestProfileByIdQuery(id);
@@ -57,6 +60,7 @@ export class GuestProfileController {
         summary: 'Creates an Guest profile',
         description: 'This endpoint creates an Guest profile',
     })
+    @UsePipes(new ValidationPipe())
     @Post()
     async CreateGuestProfile(@Body() createGuestProfileDto: CreateGuestProfileResourceDto):Promise<GuestProfileResourceDto> {
         const createGuestProfileCommand = new CreateGuestProfileCommand(createGuestProfileDto);
@@ -83,6 +87,7 @@ export class GuestProfileController {
         summary: 'Updates an Guest profile by id',
         description: 'This endpoint updates an Guest profile',
     })
+    @UsePipes(new ValidationPipe())
     @Put(':id')
     @ApiParam({ name: 'id', required: true, type: Number, example: 1 })
     async UpdateGuestProfile(@Body() updateGuestPersonalInformationResourceDto: UpdateGuestPersonalInformationResourceDto,
@@ -106,6 +111,34 @@ export class GuestProfileController {
             username: updatedGuestProfile.username
         });
 
+    }
+
+
+    @ApiOperation({
+        summary: 'Updates an Guest profile by id',
+        description: 'This endpoint updates an Guest profile',
+    })
+    @UsePipes(new ValidationPipe())
+    @Get('by-account/:id')
+    @ApiParam({ name: 'accountId', required: true, type: Number, example: 1 })
+    async getProfileByAccountId(accountId: number): Promise<GuestProfileResourceDto> {
+
+        const result = await this.guestProfileQueryService.HandleGetGuestProfileByAccountId(accountId);
+        return new GuestProfileResourceDto({
+            id: result.guestProfile.id,
+            accountId: result.guestProfile.accountId,
+            name: result.guestProfile.name,
+            lastName: result.guestProfile.lastName,
+            dni: result.guestProfile.dni,
+            email: result.guestProfile.email,
+            phoneNumber: result.guestProfile.phoneNumber,
+            status: result.guestProfile.status,
+            nfcKey: result.guestProfile.nfcKey,
+            guestCode: result.guestProfile.guestCode,
+            createdAt: result.guestProfile.createdAt,
+            updatedAt: result.guestProfile.updatedAt,
+            username: result.username
+        });
     }
 
 

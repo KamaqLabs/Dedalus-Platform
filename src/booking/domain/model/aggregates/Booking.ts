@@ -14,10 +14,13 @@ export class Booking {
     @Column({name: 'hotel_id', nullable: false})
     hotelId: number;
 
-    @Column({name: 'check_in_date', type: "date", nullable: false})
+    @Column({name: 'room_id', nullable: false})
+     roomId: number;
+
+    @Column({name: 'check_in_date', type: "datetime", nullable: false})
     checkInDate: Date;
 
-    @Column({name: 'check_out_date', type: "date", nullable: false})
+    @Column({name: 'check_out_date', type: "datetime", nullable: false})
     checkOutDate: Date;
 
     @Column({
@@ -27,9 +30,6 @@ export class Booking {
         default: BookStatus.PENDING
     })
     bookStatus: BookStatus;
-
-    @Column({name: 'nfc_key', type: "varchar", length: 255, nullable: true})
-    nfcKey: string | null;
 
     @Column({name: 'total_price', type: "decimal", precision: 10, scale: 2, nullable: false})
     totalPrice: number;
@@ -46,20 +46,29 @@ export class Booking {
         const booking = new Booking();
         booking.guestId = command.guestId;
         booking.hotelId = hotelId;
+        booking.roomId = command.roomId;
         booking.checkInDate = command.checkInDate;
         booking.checkOutDate = command.checkOutDate;
         booking.bookStatus = BookStatus.PENDING;
-        booking.nfcKey = null;
-        booking.totalPrice = command.totalPrice;
 
         return booking;
     }
+
+    static ConstructInstantBookingFromCommand(command: CreateBookCommand, hotelId:number): Booking {
+        const booking = new Booking();
+        booking.guestId = command.guestId;
+        booking.hotelId = hotelId;
+        booking.roomId = command.roomId;
+        booking.checkInDate = command.checkInDate;
+        booking.checkOutDate = command.checkOutDate;
+        booking.bookStatus = BookStatus.CONFIRMED;
+
+        return booking;
+    }
+
     constructor() {
     }
 
-    public assignNfcKey(nfcKey: string): void {
-        this.nfcKey = nfcKey;
-    }
 
     public updateStatus(status: BookStatus): void {
         this.bookStatus = status;

@@ -1,7 +1,7 @@
 import {Inject, Injectable} from "@nestjs/common";
 import {HOTEL_REPOSITORY_TOKEN} from "../../../domain/repositories/hotel-repository.token";
 import {IHotelRepository} from "../../../domain/repositories/i-hotel-repository";
-import {HotelRepository} from "../../../infrastrucuture/persistence/typeorm/repositories/HotelRepository";
+import {HotelRepository} from "../../../infrastructure/persistence/typeorm/repositories/HotelRepository";
 import {IHotelCommandService} from "../../../domain/services/hotel-services/i-hotel-command-service";
 import { Hotel } from "src/hotel/domain/model/aggregates/Hotel";
 import { CreateHotelCommand } from "src/hotel/domain/model/commands/create-hotel.command";
@@ -20,7 +20,8 @@ export class HotelCommandService implements IHotelCommandService {
     }
 
     async HandleCreteHotelAsync(command: CreateHotelCommand): Promise<Hotel> {
-        const newHotel = Hotel.ConstructHotelFromCommand(command);
+
+        const newHotel: Hotel = Hotel.ConstructHotelFromCommand(command);
         if(await this.hotelRepository.findByNameAsync(command.name)) {
             throw new NameExistsError(newHotel.name);
         }
@@ -31,11 +32,19 @@ export class HotelCommandService implements IHotelCommandService {
     }
 
     async HandleUpdateHotelAsync(command: UpdateHotelCommand, hotelId: number): Promise<Hotel> {
+
+        const hotel = await this.hotelRepository.findByIdAsync(hotelId);
+        if(!hotel) {
+            throw new HotelNotFoundError(hotelId);
+        }
         const updatedHotel = Hotel.UpdateHotelFromCommand(command,hotelId);
-        if(await this.hotelRepository.findByNameAsync(command.name) || (await this.hotelRepository.findByNameAsync(command.name))?.id !== hotelId) {
+
+        const existingHotelByName = await this.hotelRepository.findByNameAsync(command.name);
+        if(existingHotelByName && existingHotelByName.id !== hotelId) {
             throw new NameExistsError(updatedHotel.name);
         }
-        if(await this.hotelRepository.findByRucAsync(command.ruc) || (await this.hotelRepository.findByRucAsync(command.ruc))?.id !== hotelId) {
+        const existingHotelByRuc = await this.hotelRepository.findByRucAsync(command.ruc);
+        if(existingHotelByRuc && existingHotelByRuc.id !== hotelId) {
             throw new RucExistsError(updatedHotel.ruc);
         }
         if(!updatedHotel) throw new HotelNotFoundError(hotelId);

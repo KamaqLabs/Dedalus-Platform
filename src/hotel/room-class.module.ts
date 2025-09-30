@@ -5,7 +5,7 @@ import { RoomClass } from './domain/model/entites/RoomClass';
 import { RoomClassController } from './interfaces/rest/room-class.controller';
 import { RoomClassCommandService } from './application/internal/commandservices/room-class-command.service';
 import { RoomClassQueryService } from './application/internal/queryservices/room-class-query.service';
-import { RoomClassRepository } from './infrastrucuture/persistence/typeorm/repositories/RoomClassRepository';
+import { RoomClassRepository } from './infrastructure/persistence/typeorm/repositories/RoomClassRepository';
 import { ROOM_CLASS_REPOSITORY_TOKEN } from './domain/repositories/room-class-repository.token';
 import {HotelsModule} from "./hotels.module";
 

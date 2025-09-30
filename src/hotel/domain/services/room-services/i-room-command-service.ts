@@ -7,10 +7,10 @@ import {RemoveRoomModuleCommand} from "../../model/commands/remove-room-module.c
 import {RoomInformationResourceDto} from "../../../interfaces/rest/dto/room-information-resource.dto";
 
 export interface IRoomCommandService {
-    HandleCreateRoom(command:CreateRoomCommand): Promise<RoomInformationResourceDto>;
-    HandleUpdateRoom(command: UpdateRoomCommand): Promise<RoomInformationResourceDto>;
+    HandleCreateRoom(command:CreateRoomCommand, hotelId:number): Promise<RoomInformationResourceDto>;
+    HandleUpdateRoom(command: UpdateRoomCommand, roomId:number): Promise<RoomInformationResourceDto>;
     HandleDeleteRoom(roomId: number): Promise<void>;
-    HandleAddNfcKey(command: AssignNfcKeyCommand): Promise<RoomInformationResourceDto>;
+    HandleAddNfcKey(roomId:number,nfcKey:string): Promise<RoomInformationResourceDto>;
     HandleDeleteNfcKey(command: RemoveNfcKeyCommand): Promise<RoomInformationResourceDto>;
     HandleUpdateRoomStatus(roomId: number, status: string): Promise<RoomInformationResourceDto>;
     HandleAddModuleToRoom(command: AddRoomModuleCommand): Promise<RoomInformationResourceDto>;

@@ -20,6 +20,7 @@ export class UpdateGuestPersonalInformationResourceDto {
     })
     @IsNotEmpty()
     @IsString()
+    @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/, { message: 'El nombre solo puede contener letras y espacios' })
     @MinLength(2)
     @MaxLength(50)
     name: string;
@@ -32,6 +33,7 @@ export class UpdateGuestPersonalInformationResourceDto {
     })
     @IsNotEmpty()
     @IsString()
+    @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/, { message: 'El apellido solo puede contener letras y espacios' })
     @MinLength(2)
     @MaxLength(50)
     lastName: string;
@@ -45,7 +47,7 @@ export class UpdateGuestPersonalInformationResourceDto {
     @IsNotEmpty()
     @IsString()
     @Length(8, 12)
-    @Matches(/^[0-9]+$/, { message: 'DNI debe contener solo números' })
+    @Matches(/^[0-9]+$/, { message: 'DNI debe contener solo 8 números' })
     dni: string;
 
     @ApiProperty({

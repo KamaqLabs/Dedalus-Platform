@@ -7,7 +7,8 @@ import {Hotel} from "./domain/model/aggregates/Hotel";
 import {HotelCommandService} from "./application/internal/commandservices/hotel-command.service";
 import {HOTEL_REPOSITORY_TOKEN} from "./domain/repositories/hotel-repository.token";
 import {HotelQueryService} from "./application/internal/queryservices/hotel-query.service";
-import {HotelRepository} from "./infrastrucuture/persistence/typeorm/repositories/HotelRepository";
+import {HotelRepository} from "./infrastructure/persistence/typeorm/repositories/HotelRepository";
+import {HotelContextFacadeService} from "./interfaces/acl/hotel-context-facade.service";
 
 
 
@@ -21,8 +22,14 @@ import {HotelRepository} from "./infrastrucuture/persistence/typeorm/repositorie
             useClass: HotelRepository,
         },
         HotelQueryService,
+        HotelContextFacadeService,
     ],
-    exports: [HOTEL_REPOSITORY_TOKEN, HotelCommandService],
+    exports: [
+        HOTEL_REPOSITORY_TOKEN,
+        HotelCommandService,
+        HotelQueryService,
+        HotelContextFacadeService
+    ],
     controllers: [HotelController],
 })
 

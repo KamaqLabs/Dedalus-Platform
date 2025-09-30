@@ -47,7 +47,7 @@ export class AccountCommandService implements IAccountCommandService {
     ) { }
 
   async handleSignUp(command: SignUpCommand): Promise<Account> {
-
+    console.log(command.username);
     if (await this.accountRepository
       .findAccountByUsername(command.username)) {
       throw new UsernameExistsError();
