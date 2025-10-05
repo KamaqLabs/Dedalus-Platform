@@ -11,7 +11,6 @@ export class AdministratorProfileResourceDto {
     phoneNumber: string;
     createdAt: Date;
     updatedAt: Date;
-    username: string;
 
     constructor(data: AdministratorProfile) {
         this.id = data.id;
@@ -24,6 +23,5 @@ export class AdministratorProfileResourceDto {
         this.phoneNumber = data.phoneNumber;
         this.createdAt = data.createdAt;
         this.updatedAt = data.updatedAt;
-        this.username = data.accountId ? `user${data.accountId}` : '';
     }
 }

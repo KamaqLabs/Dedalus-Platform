@@ -4,11 +4,15 @@ import {
     ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN
 } from "../../../domain/repositories/administrator-profile-repository.token";
 import {ExternalIamService} from "../outbound-service/external-iam.service";
-import { EventBus } from '@nestjs/cqrs';
+import {EventBus} from '@nestjs/cqrs';
 import {IAdministratorProfileRepository} from "../../../domain/repositories/i-administrator-profile-repository";
 import {AdministratorProfile} from "../../../domain/model/aggregates/Administrator-profile";
-import { CreateAdministratorProfileCommand } from "src/profiles/domain/model/commands/create-administrator-profile.command";
-import { UpdateAdministratorPersonalInformationCommand } from "src/profiles/domain/model/commands/update-administrator-personal-information.command";
+import {
+    CreateAdministratorProfileCommand
+} from "src/profiles/domain/model/commands/create-administrator-profile.command";
+import {
+    UpdateAdministratorPersonalInformationCommand
+} from "src/profiles/domain/model/commands/update-administrator-personal-information.command";
 import {DniExistsError} from "../../Errors/dni-exists.error";
 import {EmailExistsError} from "../../Errors/email-exists.error";
 import {ProfileNotFoundError} from "../../Errors/profile-not-found.error";
@@ -49,7 +53,7 @@ export class AdministratorProfileCommandService implements IAdministratorProfile
     } finally {
 }
     }
-    async HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand, administratorId:number): Promise<{ administratorProfile: AdministratorProfile; }> {
+    async HandleUpdateAdministratorPersonalInformation(command: UpdateAdministratorPersonalInformationCommand, administratorId:number): Promise<AdministratorProfile> {
         const administratorProfile = await this.administratorProfileRepository.findByIdAsync(administratorId);
 
         const profileFoundByDni = await this.administratorProfileRepository.findAdministratorByDniAsync(command.dni);
@@ -60,9 +64,6 @@ export class AdministratorProfileCommandService implements IAdministratorProfile
 
         if(!administratorProfile) throw new ProfileNotFoundError(administratorId);
         administratorProfile.UpdatePersonalInformation(command);
-        const updatedProfile = await this.administratorProfileRepository.updateAsync(administratorProfile);
-        return {
-            administratorProfile: updatedProfile
-        };
+        return await this.administratorProfileRepository.updateAsync(administratorProfile);
     }
 }

@@ -10,9 +10,12 @@ import {
 import {AdministratorProfileResourceDto} from "./dto/administrator-profile-resource.dto";
 import {GetAdministratorProfileByIdQuery} from "../../domain/model/queries/get-administrator-profile-by-id.query";
 import {AdministratorProfile} from "../../domain/model/aggregates/Administrator-profile";
-import {CreateGuestProfileResourceDto} from "./dto/create-guest-profile-resource.dto";
 import {CreateAdministratorProfileCommand} from "../../domain/model/commands/create-administrator-profile.command";
 import {IamApplicationExceptionFilter} from "../../../iam/interfaces/filters/iam-application-exception.filter";
+import {CreateAdministratorProfileResourceDto} from "./dto/create-administrator-profile-resource.dto";
+import {
+    UpdateAdministratorPersonalInformationCommand
+} from "../../domain/model/commands/update-administrator-personal-information.command";
 
 
 @ApiBearerAuth()
@@ -48,10 +51,10 @@ export class AdministratorProfileController {
     @Put(':administratorId')
     @ApiParam({ name: 'administratorId', required: true, type: Number, example: 1 })
     @UsePipes(new ValidationPipe())
-    async UpdateAdministratorProfileById(@Body() updateAdministratorProfileDto: CreateGuestProfileResourceDto,
+    async UpdateAdministratorProfileById(@Body() updateAdministratorProfileDto: CreateAdministratorProfileResourceDto,
         @Param('administratorId') administratorId: number):Promise<AdministratorProfileResourceDto> {
-        const query = new  GetAdministratorProfileByIdQuery(1);
-        const administratorProfile:AdministratorProfile = await this.administratorProfileQueryService.HandleGetAdministratorProfileById(query);
+        const command = new  UpdateAdministratorPersonalInformationCommand(updateAdministratorProfileDto);
+        const administratorProfile:AdministratorProfile = await this.administratorProfileCommandService.HandleUpdateAdministratorPersonalInformation(command,administratorId);
         return new AdministratorProfileResourceDto(administratorProfile);
     }
 
@@ -61,10 +64,9 @@ export class AdministratorProfileController {
     @Post(':hotelId')
     @ApiParam({ name: 'hotelId', required: true, type: Number, example: 1 })
     @UsePipes(new ValidationPipe())
-    async CreateAdministratorProfile(@Body() createAdministratorProfileDto: CreateGuestProfileResourceDto,
+    async CreateAdministratorProfile(@Body() createAdministratorProfileDto: CreateAdministratorProfileResourceDto,
         @Param('hotelId') hotelId: number):Promise<AdministratorProfileResourceDto> {
         const command = new  CreateAdministratorProfileCommand(createAdministratorProfileDto);
-        console.log("controller ",command.username);
         const administratorProfile:AdministratorProfile = await this.administratorProfileCommandService.HandleCreateAdministratorProfile(command,hotelId);
         return new AdministratorProfileResourceDto(administratorProfile);
     }

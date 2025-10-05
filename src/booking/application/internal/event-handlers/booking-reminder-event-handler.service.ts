@@ -15,7 +15,7 @@ export class BookingReminderEventHandler {
         private readonly bookingRepository: IBookingRepository<Booking>,
     ) {}
 
-    @Cron(CronExpression.EVERY_30_SECONDS)
+    @Cron(CronExpression.EVERY_2_HOURS)
     async handleBookingReminder() {
         try {
             const { readyForCheckIn, pendingConfirmation } = await this.bookingRepository
