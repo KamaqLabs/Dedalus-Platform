@@ -26,7 +26,7 @@ export class AuthJwtService {
     }
   }
 
-  public async createTokenForInvitation(payload: { athleteType: string, availableSessions: number, jti: string }) {
+  public async createTokenForInvitation(payload: { email: string, jti: string }) {
     return this.jwtService.sign(payload, { expiresIn: '24h' });
   }
 
@@ -42,7 +42,7 @@ export class AuthJwtService {
   }
 
   //TODO: Use the promise <Jwt> or something like that to catch the error in the application layer
-  public async verifyInvitationToken(token: string): Promise<{ athleteType: string, availableSessions: number, jti: string}>{
+  public async verifyInvitationToken(token: string): Promise<{ email: string, jti: string}>{
     try {
       return this.jwtService.verify(token);
     } catch (error) {

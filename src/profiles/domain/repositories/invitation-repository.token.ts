@@ -1,0 +1,1 @@
+export const INVITATION_REPOSITORY_TOKEN = Symbol('IInvitationRepositoryToken');

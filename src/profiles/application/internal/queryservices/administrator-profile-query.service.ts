@@ -9,12 +9,15 @@ import {ProfileNotFoundError} from "../../Errors/profile-not-found.error";
 import {
     AdministratorProfileRepository
 } from "../../../infrastructure/persistence/typeorm/repositories/AdministratorProfileRepository";
+import {GetInvitationInformationQuery} from "../../../domain/model/queries/get-invitation-information.query";
+import {ExternalIamService} from "../outbound-service/external-iam.service";
 
 @Injectable()
 export class AdministratorProfileQueryService implements IAdministratorProfileQueryService {
     constructor(
         @Inject(ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN)
         private readonly administratorRepository: AdministratorProfileRepository,
+        @Inject() private readonly externalIamService: ExternalIamService
     ) {
     }
 
@@ -33,6 +36,12 @@ export class AdministratorProfileQueryService implements IAdministratorProfileQu
             throw new ProfileNotFoundError(accountId);
         }
         return administratorProfile;
+    }
+
+    async handleGetInvitationTokenVerification(query: GetInvitationInformationQuery): Promise<string> {
+        if(await this.externalIamService.validateTokenInvitation(query.token)){
+            return "valid";
+        }
     }
 
 }

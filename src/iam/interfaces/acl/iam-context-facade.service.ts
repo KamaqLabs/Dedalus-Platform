@@ -34,6 +34,17 @@ export class IamContextFacadeService {
     return account ? account.username : 'Cuenta no encontrada';
   }
 
+    public async obtainInvitationUrl(email:string, jti: string): Promise<string> {
+        const createTokenForInvitationCommand = new CreateTokenForInvitationCommand(email, jti);
+        return await this.accountCommandService.handleCreateTokenForInvitation(createTokenForInvitationCommand);
+    }
+
+    public async obtainInvitationTokenPayload(token: string): Promise<{ email: string, jti: string}> {
+        const validateInvitationTokenCommand = new ValidateInvitationTokenCommand(token);
+        return await this.accountCommandService.handleValidateInvitationToken(validateInvitationTokenCommand);
+    }
+
+
   public async updateAccountRole(accountId: number, role: string): Promise<void> {
     const command = new UpdateAccountRoleCommand(accountId, role);
     return await this.accountCommandService.handleUpdateAccountRole(command);

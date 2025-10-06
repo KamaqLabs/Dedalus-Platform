@@ -78,12 +78,17 @@ export class CreateGuestProfileResourceDto {
     dni: string;
 
     @ApiProperty({
-        description: 'Correo electrónico del huésped',
+        description: 'Correo electrónico del adminstrador',
         example: 'juan.perez@email.com'
     })
     @IsNotEmpty()
-    @IsEmail()
+    @IsString({
+        message: "El correo electrónico debe ser una cadena de texto"
+    })
+    @IsEmail(undefined, { message: 'El correo electrónico debe ser válido.' })
     email: string;
+
+
 
     @ApiProperty({
         description: 'Número de teléfono',
@@ -92,7 +97,9 @@ export class CreateGuestProfileResourceDto {
         maxLength: 15
     })
     @IsNotEmpty()
-    @IsString()
+    @IsString({
+        message: "El numero de telefono debe ser una cadena de texto"
+    })
     @Length(9, 15)
     @Matches(/^[\+]?[0-9\s\-\(\)]+$/, { message: 'Formato de teléfono inválido' })
     phoneNumber: string;

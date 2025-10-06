@@ -1,11 +1,9 @@
 export class CreateTokenForInvitationCommand {
-  public readonly athleteType: string;
-  public readonly availableSessions: number;
+  public readonly email: string;
   public readonly jti: string;
 
-  constructor(athleteType: string, availableSessions: number, jti: string) {
-    this.athleteType = athleteType;
-    this.availableSessions = availableSessions;
+  constructor(email: string, jti: string) {
+    this.email = email;
     this.jti = jti;
   }
 }

@@ -162,24 +162,22 @@ export class AccountCommandService implements IAccountCommandService {
     return;
   }
 
- /* async handleCreateTokenForInvitation(command: CreateTokenForInvitationCommand): Promise<string> {
+ async handleCreateTokenForInvitation(command: CreateTokenForInvitationCommand): Promise<string> {
     const webAppUrl: string = process.env.WEB_APP_URL;
     const token: string = await this.jwtService.createTokenForInvitation({
-      athleteType: command.athleteType,
-      availableSessions: command.availableSessions,
+      email: command.email,
       jti: command.jti
     });
     return `${webAppUrl}/signup/${token}`;
   }
 
   async handleValidateInvitationToken(command: ValidateInvitationTokenCommand): Promise<{
-    athleteType: string;
-    availableSessions: number
+    email: string;
     jti: string
   }> {
     return await this.jwtService.verifyInvitationToken(command.token);
   }
-*/
+
   async handleSeedAdminAccounts(command: SeedAdminAccountsCommand): Promise<void> {
     const adminUsernames: string[] = ["Dedalus", "admin", "admin1"]
     const password = this.configService.get<string>('ADMIN_PASSWORD')

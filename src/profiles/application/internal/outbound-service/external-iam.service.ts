@@ -20,7 +20,21 @@ export class ExternalIamService {
         return await this.iamContextFacade.obtainUsernameByAccountId(accountId);
     }
 
-    public async updateAccountRole(accountId: number, role: string): Promise<void> {
-        return await this.iamContextFacade.updateAccountRole(accountId, role);
+
+
+
+    public async obtainInvitationUrl(email:string, jti: string): Promise<string> {
+        return await this.iamContextFacade.obtainInvitationUrl(email, jti);
     }
+
+    public async validateTokenInvitation(token: string): Promise<boolean> {
+        const payload =  await this.iamContextFacade.obtainInvitationTokenPayload(token);
+        if(payload) return true;
+    }
+
+    public async obtainInformationFromTokenInvitation(token: string): Promise<{ email: string, jti: string }> {
+        return await this.iamContextFacade.obtainInvitationTokenPayload(token);
+    }
+
+
 }

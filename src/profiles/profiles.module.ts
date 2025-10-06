@@ -22,9 +22,17 @@ import {AdministratorProfileController} from "./interfaces/rest/administrator-pr
 import {
     AdministratorProfileCommandService
 } from "./application/internal/commandservices/administrator-Profile-command.service";
+import {INVITATION_REPOSITORY_TOKEN} from "./domain/repositories/invitation-repository.token";
+import {InvitationRepository} from "./infrastructure/persistence/typeorm/repositories/InvitationRepository";
+import {InvitationQueryService} from "./application/internal/queryservices/invitation-query.service";
+import {InvitationGeneratedHandler} from "./application/internal/event-handlers/invitation-generated-handler";
+import {InvitationCommandService} from "./application/internal/commandservices/invitation-command.service";
+import {InvitationUsedHandler} from "./application/internal/event-handlers/invitation-used-handler";
+import {AdministratorInvitationController} from "./interfaces/rest/administrator-invitation.controller";
+import {Invitation} from "./domain/model/aggregates/invitation";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([GuestProfile, AdministratorProfile]), IamModule, CqrsModule],
+    imports: [TypeOrmModule.forFeature([GuestProfile, Invitation, AdministratorProfile]), IamModule, CqrsModule],
     providers: [
         GuestProfileCommandService,
         AdministratorProfileCommandService,
@@ -36,13 +44,21 @@ import {
             provide: ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN,
             useClass: AdministratorProfileRepository,
         },
+        {
+            provide: INVITATION_REPOSITORY_TOKEN,
+            useClass: InvitationRepository
+        },
         ExternalIamService,
         GuestProfileQueryService,
         AdministratorProfileQueryService,
         AdministratorProfileQueryService,
+        InvitationCommandService,
+        InvitationQueryService,
+        InvitationUsedHandler,
+        InvitationGeneratedHandler,
         ProfileContextFacadeService
     ],
-    exports: [GUEST_PROFILE_REPOSITORY_TOKEN, ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN, ProfileContextFacadeService],
-    controllers: [GuestProfileController,AdministratorProfileController],
+    exports: [GUEST_PROFILE_REPOSITORY_TOKEN, ADMINISTRATOR_PROFILE_REPOSITORY_TOKEN, INVITATION_REPOSITORY_TOKEN, ProfileContextFacadeService],
+    controllers: [GuestProfileController,AdministratorProfileController, AdministratorInvitationController],
 })
 export class ProfilesModule {}
