@@ -29,6 +29,7 @@ export class AdministratorProfileQueryService implements IAdministratorProfileQu
     async HandleGetAdministratorProfileByAccountId(accountId: number): Promise<AdministratorProfile> {
         const administratorProfile = await this.administratorRepository.findProfileByAccountIdAsync(accountId);
         if(!administratorProfile) {
+
             throw new ProfileNotFoundError(accountId);
         }
         return administratorProfile;

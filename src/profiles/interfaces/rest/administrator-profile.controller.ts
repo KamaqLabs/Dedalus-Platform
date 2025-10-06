@@ -59,6 +59,19 @@ export class AdministratorProfileController {
     }
 
     @ApiOperation({
+        summary: 'Get an Administrator profile by accountId',
+        description: 'This endpoint returns an Administrator profile by accountId',
+    })
+    @Get('by-account/:accountId')
+    @ApiParam({ name: 'accountId', required: true, type: Number, example: 1 })
+    @UsePipes(new ValidationPipe())
+    async GetAdministratorProfileByAccountId(@Param('accountId') accountId: number):Promise<AdministratorProfileResourceDto> {
+        const administratorProfile:AdministratorProfile = await this.administratorProfileQueryService.HandleGetAdministratorProfileByAccountId(accountId);
+        return new AdministratorProfileResourceDto(administratorProfile);
+    }
+
+
+    @ApiOperation({
         summary: 'Creates an Administrator profile',
         description: 'This endpoint creates an Administrator profile',})
     @Post(':hotelId')
@@ -70,5 +83,7 @@ export class AdministratorProfileController {
         const administratorProfile:AdministratorProfile = await this.administratorProfileCommandService.HandleCreateAdministratorProfile(command,hotelId);
         return new AdministratorProfileResourceDto(administratorProfile);
     }
+
+
 
 }
