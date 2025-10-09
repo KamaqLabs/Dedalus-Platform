@@ -31,6 +31,10 @@ export class AdministratorProfileRepository extends BaseRepository<Administrator
       return this.administratorProfileRepository.findOne({ where: { accountId } });
     }
 
+    async findAdministratorsByHotelId(hotelId: number): Promise<AdministratorProfile[]> {
+      return this.administratorProfileRepository.find({ where: { hotelId } });
+    }
+
 
 }
 

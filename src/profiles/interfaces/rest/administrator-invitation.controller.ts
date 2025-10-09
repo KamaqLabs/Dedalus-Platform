@@ -40,7 +40,7 @@ export class AdministratorInvitationController{
         summary: 'Verify invitation token',
         description: 'This endpoint verifies the invitation token and returns a message indicating if the token is correct',
     })
-    @Get('athlete-profiles/invitations/verify')
+    @Get('administrator-profiles/invitations/verify')
     async validateTokenInvitation( @Query('token') token: string) : Promise<string> {
         const validateTokenCommand
             = new ValidateInvitationTokenCommand(token);
@@ -49,11 +49,10 @@ export class AdministratorInvitationController{
             .handleGetInvitationTokenVerification(validateTokenCommand);
     }
 
-
     //@UseGuards(JwtAuthGuard, RolesGuard)   alch no lo usamos por ahora
    // @Roles('ADMIN')
     @UsePipes(new ValidationPipe())
-    @Post('athlete-profiles/invitations')
+    @Post('administrator-profiles/invitations')
     @ApiOperation({
         summary: 'Generate Administrators invitation URL',
         description: 'This endpoint generates an invitation URL for Administrators to register',

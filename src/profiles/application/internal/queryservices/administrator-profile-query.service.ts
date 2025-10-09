@@ -11,6 +11,7 @@ import {
 } from "../../../infrastructure/persistence/typeorm/repositories/AdministratorProfileRepository";
 import {GetInvitationInformationQuery} from "../../../domain/model/queries/get-invitation-information.query";
 import {ExternalIamService} from "../outbound-service/external-iam.service";
+import {ProfilesNotFoundInHotelError} from "../../Errors/profiles-not-found-in-hotel.error";
 
 @Injectable()
 export class AdministratorProfileQueryService implements IAdministratorProfileQueryService {
@@ -36,6 +37,14 @@ export class AdministratorProfileQueryService implements IAdministratorProfileQu
             throw new ProfileNotFoundError(accountId);
         }
         return administratorProfile;
+    }
+
+    async HandleGetAdministratorsProfilesByHotelId(hotelId: number): Promise<AdministratorProfile[]> {
+        const adminProfiles =  await this.administratorRepository.findAdministratorsByHotelId(hotelId);
+        if(!adminProfiles) {
+            throw new ProfilesNotFoundInHotelError(hotelId);
+        }
+        return adminProfiles;
     }
 
     async handleGetInvitationTokenVerification(query: GetInvitationInformationQuery): Promise<string> {

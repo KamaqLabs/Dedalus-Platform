@@ -45,6 +45,18 @@ export class AdministratorProfileController {
     }
 
     @ApiOperation({
+        summary: 'Get all Administrator profiles by hotelId',
+        description: 'This endpoint returns all Administrator profiles by hotelId',
+    })
+    @Get('by-hotel/:hotelId')
+    @ApiParam({ name: 'hotelId', required: true, type: Number, example: 1 })
+    @UsePipes(new ValidationPipe())
+    async GetAdministratorsProfilesByHotelId(@Param('hotelId') hotelId: number):Promise<AdministratorProfileResourceDto[]> {
+        const adminProfiles:AdministratorProfile[] = await this.administratorProfileQueryService.HandleGetAdministratorsProfilesByHotelId(hotelId);
+        return adminProfiles.map(adminProfile => new AdministratorProfileResourceDto(adminProfile));
+    }
+
+    @ApiOperation({
         summary: 'Update an Administrator profile by id',
         description: 'This endpoint updates an Administrator profile by id',
     })

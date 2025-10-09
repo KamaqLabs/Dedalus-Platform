@@ -8,6 +8,7 @@ import { EmailNotFoundError } from "../../application/Errors/email-not-found.err
 import { GuestCodeNotFoundError } from "../../application/Errors/guest-code-not-found.error";
 import { PhoneExistsError } from "../../application/Errors/phone-exists.error";
 import { ProfileNotFoundError } from "../../application/Errors/profile-not-found.error";
+import {ProfilesNotFoundInHotelError} from "../../application/Errors/profiles-not-found-in-hotel.error";
 
 @Catch(ApplicationError)
 export class ProfileApplicationExceptionFilter implements ExceptionFilter {
@@ -37,6 +38,10 @@ export class ProfileApplicationExceptionFilter implements ExceptionFilter {
         else if (exception instanceof EmailNotFoundError) {
             statusCode = HttpStatus.NOT_FOUND;
             errorName = EmailNotFoundError.name;
+        }
+        else if (exception instanceof ProfilesNotFoundInHotelError){
+            statusCode = HttpStatus.NOT_FOUND;
+            errorName = ProfilesNotFoundInHotelError.name;
         }
         else if (exception instanceof GuestCodeNotFoundError) {
             statusCode = HttpStatus.NOT_FOUND;
