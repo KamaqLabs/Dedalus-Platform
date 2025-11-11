@@ -15,10 +15,10 @@ export class BookingReminderEventHandler {
         private readonly bookingRepository: IBookingRepository<Booking>,
     ) {}
 
-    @Cron(CronExpression.EVERY_2_HOURS)
+    @Cron(CronExpression.EVERY_MINUTE)
     async handleBookingReminder() {
         try {
-            const { readyForCheckIn, pendingConfirmation } = await this.bookingRepository
+            const { readyForCheckIn, pendingConfirmation, readyForCheckOut } = await this.bookingRepository
                 .findBookingsForStatusUpdate();
 
             if (readyForCheckIn.length > 0) {
@@ -30,6 +30,11 @@ export class BookingReminderEventHandler {
             if (pendingConfirmation.length > 0) {
                 const confirmIds = pendingConfirmation.map(b => b.id);
                 await this.bookingRepository.updateBookingsToConfirmed(confirmIds);
+            }
+            if (readyForCheckOut && readyForCheckOut.length > 0) {
+                const checkOutIds = readyForCheckOut.map(b => b.id);
+                await this.bookingRepository.updateBookingsToCheckedOutWithRoomStatus(checkOutIds);
+                this.logger.log(`🏁 ${readyForCheckOut.length} bookings cambiados a CHECKED_OUT y rooms a Maintenance: [${checkOutIds.join(', ')}]`);
             }
             if (readyForCheckIn.length === 0 && pendingConfirmation.length === 0) {
                 this.logger.debug('No hay bookings para procesar');
