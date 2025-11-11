@@ -12,6 +12,9 @@ import {NfcTokenGenerator} from "./utils/NfcTokenGenerator";
 import {ExternalGuestProfileService} from "../outbound/external-guest-profile.service";
 import {BookInformationResourceDto} from "../../interfaces/rest/dto/book-information-resource.dto";
 import {ToPeruvianTimeZoneService} from "./utils/to-peruvian-time-zone.service";
+import { CreateBookByGuestCodeCommand } from "src/booking/domain/model/commands/create-book-by-guest-code.command";
+import {GuestProfile} from "../../../profiles/domain/model/aggregates/Guest-Profile";
+import {BookStatus} from "../../domain/model/valueObjects/BookStatus";
 
 @Injectable()
 export class BookingCommandService implements IBookingCommandService {
@@ -22,9 +25,9 @@ export class BookingCommandService implements IBookingCommandService {
         @Inject() private readonly externalRoomService: ExternalRoomService,
         @Inject() private readonly externalGuestProfileService: ExternalGuestProfileService,
         @Inject() private readonly peruTimeService: ToPeruvianTimeZoneService,
-
     ) {
     }
+
 
     private calculateNights(checkIn: Date, checkOut: Date): number {
         const millisecondsPerDay = 1000 * 60 * 60 * 24;
@@ -32,6 +35,68 @@ export class BookingCommandService implements IBookingCommandService {
         return Math.round(diffTime / millisecondsPerDay);
     }
 
+    private async createAndAssignBooking(
+        booking: Booking,
+        roomId: number,
+        guestId: number
+    ): Promise<BookInformationResourceDto> {
+        const nights = this.calculateNights(booking.checkInDate, booking.checkOutDate);
+        booking.totalPrice = await this.externalRoomService.getPricePerNight(roomId) * nights;
+        const createdBooking = await this.bookingRepository.addAsync(booking);
+        const nfcKey = NfcTokenGenerator.generateNfcToken();
+        await this.externalRoomService.reserveRoom(roomId, nfcKey);
+        await this.externalGuestProfileService.addNfcKeyToGuestProfile(guestId, nfcKey);
+        const guestInformation = await this.externalGuestProfileService.getGuestProfile(guestId);
+        guestInformation.AssignNfcKey(nfcKey);
+        return BookInformationResourceDto.fromBookingAndGuest(createdBooking, guestInformation);
+    }
+
+
+    async HandleCreateBookingByGuestCodeAsync(command: CreateBookByGuestCodeCommand, hotelId: number): Promise<BookInformationResourceDto> {
+
+        if(!(await this.externalHotelService.hotelExists(hotelId))){
+            throw new Error(`Hotel with ID ${hotelId} does not exist.`);
+        }
+        if(!(await this.externalRoomService.roomExists(command.roomId))){
+            throw new Error(`Room with ID ${command.roomId} does not exist.`);
+        }
+        if(await this.bookingRepository.isRoomAvailable(command.roomId,command.checkInDate,command.checkOutDate) == false ){
+            throw new Error(`Room with ID ${command.roomId} is not available for the selected dates.`);
+        }
+        if(!(await this.externalGuestProfileService.guestProfileExistsByGuestCode(command.guestCode))){
+            throw new Error(`Guest with ID ${command.guestCode} does not exist.`);
+        }
+        const guestProfile: GuestProfile = await this.externalGuestProfileService.getGuestProfileByGuestCode(command.guestCode);
+
+        const now = this.peruTimeService.getCurrentPeruvianTime();
+        const minutesUntilCheckIn = this.peruTimeService.getMinutesDifference(command.checkInDate, now);
+        let booking: Booking;
+
+        if(minutesUntilCheckIn <= 5){
+            booking = Booking.ConstructBookingFromGuestCode(command,hotelId, guestProfile.id, BookStatus.CHECKED_IN);
+        }
+        else if(minutesUntilCheckIn <= 1440 ){
+            booking = Booking.ConstructBookingFromGuestCode(command,hotelId, guestProfile.id, BookStatus.CONFIRMED);
+        }
+        else{
+            booking = Booking.ConstructBookingFromGuestCode(command,hotelId, guestProfile.id, BookStatus.PENDING);
+        }
+
+    /*    const nights = this.calculateNights(command.checkInDate, command.checkOutDate);
+        booking.totalPrice = await this.externalRoomService.getPricePerNight(command.roomId) * nights;
+        const createdBooking = await this.bookingRepository.addAsync(booking);
+        const nfcKey = NfcTokenGenerator.generateNfcToken()
+        await this.externalRoomService.reserveRoom(command.roomId,nfcKey)
+        await this.externalGuestProfileService.addNfcKeyToGuestProfile(guestProfile.id,nfcKey)
+        const guestInformation = await this.externalGuestProfileService.getGuestProfile(guestProfile.id);
+        guestInformation.AssignNfcKey(nfcKey);
+        return BookInformationResourceDto.fromBookingAndGuest(createdBooking, guestInformation);*/
+
+        return await this.createAndAssignBooking(booking, command.roomId, guestProfile.id);
+
+
+
+    }
 
     async HandleCreateBookingAsync(command: CreateBookCommand, hotelId: number): Promise<BookInformationResourceDto> {
         if(!(await this.externalHotelService.hotelExists(hotelId))){
@@ -49,13 +114,18 @@ export class BookingCommandService implements IBookingCommandService {
         const now = this.peruTimeService.getCurrentPeruvianTime();
         const minutesUntilCheckIn = this.peruTimeService.getMinutesDifference(command.checkInDate, now);
         let booking: Booking;
-        if(minutesUntilCheckIn <= 30 ){
+
+        if(minutesUntilCheckIn <= 5){
+            booking = Booking.ConstructAutomatedBookingFromCommand(command,hotelId);
+        }
+        else if(minutesUntilCheckIn <= 1440 ){
             booking = Booking.ConstructInstantBookingFromCommand(command,hotelId);
         }
         else{
              booking = Booking.ConstructBookingFromCommand(command,hotelId);
         }
-        const nights = this.calculateNights(command.checkInDate, command.checkOutDate);
+
+        /*const nights = this.calculateNights(command.checkInDate, command.checkOutDate);
         booking.totalPrice = await this.externalRoomService.getPricePerNight(command.roomId) * nights;
         const createdBooking = await this.bookingRepository.addAsync(booking);
         const nfcKey = NfcTokenGenerator.generateNfcToken()
@@ -63,7 +133,9 @@ export class BookingCommandService implements IBookingCommandService {
         await this.externalGuestProfileService.addNfcKeyToGuestProfile(command.guestId,nfcKey)
         const guestInformation = await this.externalGuestProfileService.getGuestProfile(command.guestId);
         guestInformation.AssignNfcKey(nfcKey);
-        return BookInformationResourceDto.fromBookingAndGuest(createdBooking, guestInformation);
+        return BookInformationResourceDto.fromBookingAndGuest(createdBooking, guestInformation);*/
+
+        return await this.createAndAssignBooking(booking, command.roomId, command.guestId);
     }
     HandleUpdateBookingAsync(bookingId: number, command: UpdateBookCommand): Promise<Booking> {
         throw new Error("Method not implemented.");

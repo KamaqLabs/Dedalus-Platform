@@ -19,7 +19,8 @@ export interface IBookingRepository<AdministratorProfile> extends IBaseRepositor
     findBookingsReadyForReminder(tomorrow: Date, dayAfterTomorrow: Date): Promise<Booking[]>;
     findBookingsForStatusUpdate(): Promise<{
         readyForCheckIn: Booking[],
-        pendingConfirmation: Booking[]
+        pendingConfirmation: Booking[],
+        readyForCheckOut: Booking[]
     }>;
 
     updateBookingsToCheckedIn(bookingIds: number[]): Promise<void>
@@ -28,4 +29,6 @@ export interface IBookingRepository<AdministratorProfile> extends IBaseRepositor
 
     updateBookingsToCheckedInWithRoomStatus(bookingIds: number[]): Promise<void>
 
+
+    updateBookingsToCheckedOutWithRoomStatus(checkOutIds: number[]): any;
 }

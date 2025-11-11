@@ -1,4 +1,4 @@
-import {ApiOperation, ApiParam} from "@nestjs/swagger";
+import {ApiBearerAuth, ApiOperation, ApiParam, ApiTags} from "@nestjs/swagger";
 import {BookingQueryService} from "../../application/internal/booking-query.service";
 import {BookingCommandService} from "../../application/internal/booking-command.service";
 import {Body, Controller, Get, Param, ParseIntPipe, Post, UsePipes, ValidationPipe} from "@nestjs/common";
@@ -6,7 +6,11 @@ import {Booking} from "../../domain/model/aggregates/Booking";
 import {CreateBookCommand} from "../../domain/model/commands/create-book.command";
 import {BookInformationResourceDto} from "./dto/book-information-resource.dto";
 import {CreateBookResourceDto} from "./dto/create-book-resource.dto";
+import {CreateBookByGuestCodeResourceDto} from "./dto/create-book-by-guest-code-resource.dto";
 
+
+@ApiBearerAuth()
+@ApiTags('Bookings')
 @Controller('api/v1/Booking/Bookings')
 export class BookingController {
     constructor(
@@ -40,5 +44,23 @@ export class BookingController {
     ):Promise<BookInformationResourceDto>{
         const command = createBookingDto.toCommand()
         return this.bookingCommandService.HandleCreateBookingAsync(command,hotelId);
+    }
+
+
+
+    @ApiOperation({
+        summary: 'Creates a Booking by Guest Code',
+        description: 'This endpoint creates a Booking by Guest Code',
+    })
+    @UsePipes(new ValidationPipe())
+    @Post('ByGuestCode/:hotelId')
+    @ApiParam({ name: 'hotelId', required: true, type: Number, example: 1 })
+    async CreateBookingByGuestCode(
+        @Body() createBookingByGuestCodeDto: CreateBookByGuestCodeResourceDto,
+        @Param('hotelId',ParseIntPipe) hotelId: number
+    ):Promise<BookInformationResourceDto>{
+
+        const command = createBookingByGuestCodeDto.toCommand()
+        return this.bookingCommandService.HandleCreateBookingByGuestCodeAsync(command,hotelId);
     }
 }

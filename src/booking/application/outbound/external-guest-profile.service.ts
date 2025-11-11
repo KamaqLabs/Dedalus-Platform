@@ -23,6 +23,13 @@ export class ExternalGuestProfileService {
     public async addNfcKeyToGuestProfile(guestProfileId: number, nfcKey: string): Promise<void> {
         return this.guestContextFacade.AddNfcKeyToGuestProfile(guestProfileId,nfcKey);
     }
+    public async guestProfileExistsByGuestCode(guestCode: string): Promise<boolean> {
+        return this.guestContextFacade.IsGuestProfileExistByGuestCode(guestCode);
+    }
 
 
+    async getGuestProfileByGuestCode(guestCode: string) {
+
+        return await this.guestContextFacade.FetchGuestProfileByGuestCode(guestCode);
+    }
 }

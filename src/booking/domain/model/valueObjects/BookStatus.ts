@@ -3,5 +3,5 @@ export enum BookStatus{
     CONFIRMED = 'CONFIRMED',
     CHECKED_IN = 'CHECKED_IN',
     CANCELLED = 'CANCELLED',
-    CHECKED_OUT = 'CHECKED_OUT'
+    CHECKED_OUT = 'CHECKED_OUT',
 }

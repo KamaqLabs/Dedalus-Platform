@@ -1,6 +1,7 @@
 import {Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn} from "typeorm";
 import {BookStatus} from "../valueObjects/BookStatus";
 import {CreateBookCommand} from "../commands/create-book.command";
+import {CreateBookByGuestCodeCommand} from "../commands/create-book-by-guest-code.command";
 
 @Entity('booking')
 export class Booking {
@@ -63,6 +64,29 @@ export class Booking {
         booking.checkOutDate = command.checkOutDate;
         booking.bookStatus = BookStatus.CONFIRMED;
 
+        return booking;
+    }
+
+    static ConstructAutomatedBookingFromCommand(command: CreateBookCommand, hotelId:number): Booking {
+        const booking = new Booking();
+        booking.guestId = command.guestId;
+        booking.hotelId = hotelId;
+        booking.roomId = command.roomId;
+        booking.checkInDate = command.checkInDate;
+        booking.checkOutDate = command.checkOutDate;
+        booking.bookStatus = BookStatus.CHECKED_IN;
+
+        return booking;
+    }
+
+    static ConstructBookingFromGuestCode(command: CreateBookByGuestCodeCommand, hotelId:number, guestId:number,bookStatus:BookStatus): Booking {
+        const booking = new Booking();
+        booking.guestId = guestId;
+        booking.hotelId = hotelId;
+        booking.roomId = command.roomId;
+        booking.checkInDate = command.checkInDate;
+        booking.checkOutDate = command.checkOutDate;
+        booking.bookStatus = bookStatus;
         return booking;
     }
 

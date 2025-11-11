@@ -4,10 +4,12 @@ import {GuestProfile} from "../../../profiles/domain/model/aggregates/Guest-Prof
 import {RescheduleBookCommand} from "../model/commands/reschedule-book.command";
 import {UpdateBookCommand} from "../model/commands/update-book.command";
 import {BookInformationResourceDto} from "../../interfaces/rest/dto/book-information-resource.dto";
+import {CreateBookByGuestCodeCommand} from "../model/commands/create-book-by-guest-code.command";
 
 
 export interface IBookingCommandService {
     HandleCreateBookingAsync(command: CreateBookCommand, hotelId: number): Promise<BookInformationResourceDto>;
+    HandleCreateBookingByGuestCodeAsync(command: CreateBookByGuestCodeCommand, hotelId: number): Promise<BookInformationResourceDto>;
     HandleUpdateBookingAsync(bookingId: number, command: UpdateBookCommand): Promise<Booking>;
     HandleDeleteBookingAsync(bookingId: number): Promise<void>;
     HandleRescheduleBookingAsync(bookingId: number, command: RescheduleBookCommand): Promise<Booking>;

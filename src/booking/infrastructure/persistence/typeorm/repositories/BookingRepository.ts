@@ -107,8 +107,8 @@ export class BookingRepository extends BaseRepository<Booking>
             .getMany();
     }
 
-    async findBookingsForStatusUpdate(): Promise<{ readyForCheckIn: Booking[], pendingConfirmation: Booking[] }> {
-        const now = this.peruTimeService.getCurrentPeruvianTime(); // ✅ Hora peruana
+    async findBookingsForStatusUpdate(): Promise<{ readyForCheckIn: Booking[], pendingConfirmation: Booking[], readyForCheckOut: Booking[] }> {
+        const now = this.peruTimeService.getCurrentPeruvianTime();
         const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
         const allBookings = await this.bookingRepository
@@ -120,6 +120,10 @@ export class BookingRepository extends BaseRepository<Booking>
             })
             .orWhere('(booking.bookStatus = :confirmed AND booking.checkInDate <= :now)', {
                 confirmed: BookStatus.CONFIRMED,
+                now
+            })
+            .orWhere('(booking.bookStatus = :checkedIn AND booking.checkOutDate <= :now)', {
+                checkedIn: BookStatus.CHECKED_IN,
                 now
             })
             .getMany();
@@ -134,7 +138,12 @@ export class BookingRepository extends BaseRepository<Booking>
             booking.checkInDate <= in24Hours
         );
 
-        return { readyForCheckIn, pendingConfirmation };
+        const readyForCheckOut = allBookings.filter(booking =>
+            booking.bookStatus === BookStatus.CHECKED_IN &&
+            booking.checkOutDate <= now
+        );
+
+        return { readyForCheckIn, pendingConfirmation, readyForCheckOut };
     }
 
     async updateBookingsToCheckedIn(bookingIds: number[]): Promise<void> {
@@ -188,6 +197,40 @@ export class BookingRepository extends BaseRepository<Booking>
             }
         });
     }
+
+    async updateBookingsToCheckedOutWithRoomStatus(checkOutIds: number[]): Promise<void> {
+        if (checkOutIds.length === 0) return;
+
+        await this.bookingRepository.manager.transaction(async transactionalEntityManager => {
+            // Obtener las reservas y sus roomIds
+            const bookings = await transactionalEntityManager
+                .createQueryBuilder(Booking, 'booking')
+                .select('booking.roomId')
+                .whereInIds(checkOutIds)
+                .getMany();
+
+            const roomIds = bookings.map(booking => booking.roomId);
+
+            // Actualizar estado de las reservas a CHECKED_OUT
+            await transactionalEntityManager
+                .createQueryBuilder()
+                .update(Booking)
+                .set({ bookStatus: BookStatus.CHECKED_OUT })
+                .whereInIds(checkOutIds)
+                .execute();
+
+            // Actualizar estado de las habitaciones a CLEANING
+            if (roomIds.length > 0) {
+                await transactionalEntityManager
+                    .createQueryBuilder()
+                    .update(Room)
+                    .set({ roomStatus: RoomStatus.MAINTENANCE })
+                    .whereInIds(roomIds)
+                    .execute();
+            }
+        });
+    }
+
 
 
 

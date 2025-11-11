@@ -49,6 +49,11 @@ export class ProfileContextFacadeService {
         return !!guestInformation;
     }
 
+    public async FetchGuestProfileByGuestCode(guestCode: string): Promise<GuestProfile> {
+        const query = new GetGuestProfileByGuestCodeQuery(guestCode);
+        return await this.guestProfileQueryService.HandleGetGuestProfileByGuestCode(query);
+    }
+
     public async AddNfcKeyToGuestProfile(guestProfileId: number, nfcKey: string): Promise<void> {
         const guestProfile = await this.FetchGuestProfileById(guestProfileId);
         if (!guestProfile) {
