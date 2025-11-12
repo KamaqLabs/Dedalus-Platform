@@ -29,6 +29,11 @@ export class HotelRepository extends BaseRepository<Hotel>
         });
     }
 
+    findAllAsync(): Promise<Hotel[]> {
+        return this.hotelRepository.find();
+    }
+
+
 
 
 

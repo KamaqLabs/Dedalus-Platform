@@ -23,6 +23,12 @@ export class HotelQueryService implements IHotelQueryService {
         }
         return hotel;
     }
+
+    async HandleGetAllHotels(): Promise<Hotel[]> {
+        return this.hotelRepository.findAllAsync();
+    }
+
+
     async HandleGetHotelByName(name: string): Promise<Hotel> {
         if(await this.hotelRepository.findByNameAsync(name)  == null) {
             // throw new HotelNotFoundError(name);

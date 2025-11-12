@@ -51,6 +51,18 @@ export class HotelController {
         return this.hotelQueryService.HandleGetHotelByRuc(ruc);
     }
 
+
+    @ApiOperation({
+        summary: 'Get all Hotels',
+        description: 'This endpoint returns all Hotels',
+    })
+    @UsePipes(new ValidationPipe())
+    @Get()
+    async GetAllHotels():Promise<Hotel[]> {
+        return this.hotelQueryService.HandleGetAllHotels();
+    }
+
+
     @ApiOperation({
         summary: 'Creates an Hotel',
         description: 'This endpoint creates an Hotel',
