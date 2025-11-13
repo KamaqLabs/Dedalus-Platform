@@ -32,6 +32,42 @@ export class BookingController {
 
 
     @ApiOperation({
+        summary: 'Get all Bookings',
+        description: 'This endpoint returns all Bookings',
+    })
+    @UsePipes(new ValidationPipe())
+    @Get()
+    async GetAllBookings():Promise<Booking[]> {
+        return this.bookingQueryService.findAllBookingsAsync();
+    }
+
+
+    @ApiOperation({
+        summary: 'Get all Bookings by Hotel Id',
+        description: 'This endpoint returns all Bookings by Hotel Id',
+    })
+    @UsePipes(new ValidationPipe())
+    @Get('ByHotelId/:hotelId')
+    @ApiParam({ name: 'hotelId', required: true, type: Number, example: 1 })
+    async GetBookingsByHotelId(@Param('hotelId',ParseIntPipe) hotelId: number):Promise<Booking[]> {
+        return this.bookingQueryService.findAllBookingsByHotelIdAsync(hotelId);
+    }
+
+
+    @ApiOperation({
+        summary: 'Get all Bookings by Guest Id',
+        description: 'This endpoint returns all Bookings by Guest Id',
+    })
+    @UsePipes(new ValidationPipe())
+    @Get('ByGuestId/:guestId')
+    @ApiParam({ name: 'guestId', required: true, type: Number, example: 1 })
+    async GetBookingsByGuestId(@Param('guestId',ParseIntPipe) guestId: number):Promise<Booking[]> {
+        return this.bookingQueryService.findBookingsByGuestIdAsync(guestId);
+    }
+
+
+
+    @ApiOperation({
         summary: 'Creates a Booking',
         description: 'This endpoint creates a Booking',
     })

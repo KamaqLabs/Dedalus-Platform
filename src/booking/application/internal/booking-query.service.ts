@@ -18,16 +18,20 @@ export class BookingQueryService implements IBookingQueryService {
         return this.bookingRepository.findByIdAsync(bookingId);
     }
     findAllBookingsByHotelIdAsync(hotelId: number): Promise<Booking[]> {
-        throw new Error("Method not implemented.");
+        return this.bookingRepository.findBooksByHotelId(hotelId);
     }
     findBookingsByGuestIdAsync(guestId: number): Promise<Booking[]> {
-        throw new Error("Method not implemented.");
+        return this.bookingRepository.findBooksByGuestId(guestId);
     }
     findBookingsByStatusAsync(status: BookStatus): Promise<Booking[]> {
         throw new Error("Method not implemented.");
     }
     findBookingsByDateRangeAsync(startDate: Date, endDate: Date): Promise<Booking[]> {
         throw new Error("Method not implemented.");
+    }
+
+    findAllBookingsAsync(): Promise<Booking[]> {
+        return this.bookingRepository.findAllAsync();
     }
 
 }

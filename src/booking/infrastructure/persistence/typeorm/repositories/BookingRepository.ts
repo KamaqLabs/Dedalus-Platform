@@ -43,6 +43,10 @@ export class BookingRepository extends BaseRepository<Booking>
         throw new Error("Method not implemented.");
     }
 
+    async findAllAsync(): Promise<Booking[]> {
+        return this.bookingRepository.find();
+    }
+
 
 
 

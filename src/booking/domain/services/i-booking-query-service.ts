@@ -7,5 +7,6 @@ export interface IBookingQueryService {
     findBookingsByGuestIdAsync(guestId: number): Promise<Booking[]>;
     findBookingsByStatusAsync(status: BookStatus): Promise<Booking[]>;
     findBookingsByDateRangeAsync(startDate: Date, endDate: Date): Promise<Booking[]>;
+    findAllBookingsAsync(): Promise<Booking[]>;
 
 }

@@ -29,6 +29,7 @@ export interface IBookingRepository<AdministratorProfile> extends IBaseRepositor
 
     updateBookingsToCheckedInWithRoomStatus(bookingIds: number[]): Promise<void>
 
+    findAllAsync(): Promise<Booking[]>;
 
     updateBookingsToCheckedOutWithRoomStatus(checkOutIds: number[]): any;
 }
