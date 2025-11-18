@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IInvitationRepository } from '../../../domain/repositories/i-invitation-repository';
 import { Invitation } from '../../../domain/model/aggregates/invitation';
 import { IInvitationCommandService } from '../../../domain/services/i-invitation-command-service';
-import { InvalidInvitationTokenError } from '../../errors/invalid-invitation-token.error';
-import { InvitationDoesNotExistsError } from '../../errors/invitation-does-not-exists.error';
 import { INVITATION_REPOSITORY_TOKEN } from '../../../domain/repositories/invitation-repository.token';
+import {InvitationDoesNotExistsError} from "../../Errors/invitation-does-not-exists.error";
+import {InvalidInvitationTokenError} from "../../Errors/invalid-invitation-token.error";
 
 @Injectable()
 export class InvitationCommandService implements IInvitationCommandService{
