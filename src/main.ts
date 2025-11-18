@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NotAcceptableException, ValidationError, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 
-export async function createApp() {
+async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
     app.use(cookieParser());
@@ -34,7 +34,6 @@ export async function createApp() {
             scheme: 'bearer',
         })
         .build();
-
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, documentFactory);
 
@@ -45,17 +44,8 @@ export async function createApp() {
         origin: [allowedOrigin],
         credentials: true
     }));
-
-    return app;
-}
-
-// Solo localmente usa bootstrap()
-async function bootstrap() {
-    const app = await createApp();
     await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
     console.log(`App listening on ${process.env.PORT ?? 3000}`);
 }
 
-if (require.main === module) {
-    bootstrap();
-}
+bootstrap();
