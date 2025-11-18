@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AdministratorProfile } from '../../../../domain/model/aggregates/administrator-profile';
+import {AdministratorProfile} from "../../../../domain/model/aggregates/Administrator-profile";
 import { IAdministratorProfileRepository } from '../../../../domain/repositories/i-administrator-profile-repository';
 import { BaseRepository } from '../../../../../shared/infrastructure/persistence/typeorm/repositories/base-repository';
 
