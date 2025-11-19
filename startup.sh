@@ -51,6 +51,6 @@ EOF
 
 
 # Run migrations against PRODUCTION database
-npm run migration:run
+npm run migration:run:prod
 # Start application
 exec npm run start:prod

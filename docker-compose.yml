@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  dedalus-db:
+    image: mysql:5.7
+    container_name: dedalus-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dedalus
+      MYSQL_USER: dedalus
+      MYSQL_PASSWORD: dedalus
+    ports:
+      - "3307:3306"   # 3306 ES EL PUERTO REAL DE MYSQL
+    volumes:
+      - dedalus-db-data:/var/lib/mysql
+
+  dedalus-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dedalus-platform
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: dedalus-db       # Nombre del servicio Docker
+      DB_PORT: 3306             # Puerto interno real de MySQL
+      DB_USERNAME: dedalus
+      DB_PASSWORD: dedalus
+      DATABASE: dedalus
+      JWT_SECRET: mysecret
+      WEB_APP_URL: http://localhost:3000
+      EXPIRES_IN: 15m
+      ADMIN_PASSWORD: Admin123admin
+      NODE_ENV: development
+    depends_on:
+      - dedalus-db
+
+    # ⚠ Montar ./src SOBRE /usr/src/app/src rompe tu build en producción,
+    # pero para desarrollo local es útil → lo dejo EXACTO como pediste.
+    volumes:
+      - ./src:/usr/src/app/src
+
+volumes:
+  dedalus-db-data:
