@@ -30,10 +30,7 @@ RUN npm install --omit=dev
 # Copiamos el build desde la etapa anterior
 COPY --from=builder /usr/src/app/dist ./dist
 
-# Copiamos las migraciones compiladas en runtime
-COPY --from=builder /usr/src/app/migrations ./dist/migrations
-
-# Copiamos startup.sh
+# Copiamos también cualquier archivo necesario en runtime (ej. migrations, views, etc)
 COPY --from=builder /usr/src/app/startup.sh ./startup.sh
 
 # Aseguramos permisos de ejecución
@@ -44,4 +41,3 @@ EXPOSE 3000
 
 # Arranque
 CMD ["./startup.sh"]
-
