@@ -37,11 +37,12 @@ async function bootstrap() {
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, documentFactory);
 
+
     const cors = require('cors');
     const allowedOrigin = process.env.WEB_APP_URL;
 
     app.use(cors({
-        origin: [allowedOrigin],
+        origin: '*',
         credentials: true
     }));
     await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
