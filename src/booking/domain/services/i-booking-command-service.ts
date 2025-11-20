@@ -15,10 +15,10 @@ export interface IBookingCommandService {
     HandleRescheduleBookingAsync(bookingId: number, command: RescheduleBookCommand): Promise<Booking>;
 
     HandleAddPriceToBookingAsync(bookingId: number, additionalPrice: number): Promise<Booking>;
-    HandleCheckInBookingAsync(bookingId: number): Promise<Booking>;
-    HandleCheckOutBookingAsync(bookingId: number): Promise<Booking>;
+    HandleCheckInBookingAsync(bookingId: number): Promise<void>;
+    HandleCheckOutBookingAsync(bookingId: number): Promise<void>;
     HandleCancelBookingAsync(bookingId: number): Promise<Booking>;
-    HandleConfirmBookingAsync(bookingId: number): Promise<Booking>;
+    HandleConfirmBookingAsync(bookingId: number): Promise<void>;
 
     HandleRejectBookingAsync(bookingId: number, reason?: string): Promise<Booking>;
     HandleEarlyCheckInAsync(bookingId: number, newCheckInDate: Date): Promise<Booking>;

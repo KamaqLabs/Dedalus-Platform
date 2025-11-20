@@ -19,6 +19,6 @@ export default new DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DATABASE,
     //entities: [Account, Role, AdministratorProfile, GuestProfile, Hotel, RoomClass,Room, Booking, Invitation],
-    migrations: [  __dirname + '/migrations/*.js'],
+    migrations: [  __dirname + '/migrations/*.ts'],
     synchronize: false, // MUST BE FALSE for migrations! te estoy viendo Sihuar ojo.
 });

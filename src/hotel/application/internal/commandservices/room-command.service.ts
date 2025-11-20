@@ -19,6 +19,7 @@ import {HotelNotFoundError} from "../../errors/hotel-errors/hotel-not-found.erro
 import {RoomClassNotFoundError} from "../../errors/room-class-errors/room-class-not-found.error";
 import {RoomNotFoundError} from "../../errors/room-errors/room-not-found.error";
 import {RoomNumberExistsError} from "../../errors/room-errors/room-number-exists.error";
+import {RoomNotAvailableError} from "../../errors/room-errors/room-not-available.error";
 
 
 @Injectable()
@@ -142,12 +143,15 @@ export class RoomCommandService implements IRoomCommandService {
     }
 
 
-    async HandleReserveRoom(roomId:number, nfcKey:string):Promise<Room>{
+    async HandleReserveRoom(roomId:number):Promise<Room>{
         const room: Room = await this.roomRepository.findByIdAsync(roomId);
         if(!room) {
             throw new RoomNotFoundError(roomId);
         }
-        room.nfcKey = nfcKey;
+        if(room.roomStatus !== RoomStatus.AVAILABLE){
+            throw new RoomNotAvailableError(room.id);
+        }
+
         room.roomStatus = RoomStatus.RESERVED;
         return this.roomRepository.updateAsync(room);
     }

@@ -23,13 +23,27 @@ export class ExternalGuestProfileService {
     public async addNfcKeyToGuestProfile(guestProfileId: number, nfcKey: string): Promise<void> {
         return this.guestContextFacade.AddNfcKeyToGuestProfile(guestProfileId,nfcKey);
     }
+
+    public async removeNfcKeyFromGuestProfile(guestProfileId: number): Promise<void> {
+        return this.guestContextFacade.RemoveNfcKeyFromGuestProfile(guestProfileId);
+    }
+
     public async guestProfileExistsByGuestCode(guestCode: string): Promise<boolean> {
         return this.guestContextFacade.IsGuestProfileExistByGuestCode(guestCode);
     }
-
-
-    async getGuestProfileByGuestCode(guestCode: string) {
-
+    public async getGuestProfileByGuestCode(guestCode: string) {
         return await this.guestContextFacade.FetchGuestProfileByGuestCode(guestCode);
     }
+
+    public async changeGuestStatusToActive(guestProfileId: number): Promise<void> {
+        return await this.guestContextFacade.ChangeStatusToActive(guestProfileId);
+    }
+
+    public async changeGuestStatusToInactive(guestProfileId: number): Promise<void> {
+        return await this.guestContextFacade.ChangeStatusToInactive(guestProfileId);
+    }
+
+
+
+
 }

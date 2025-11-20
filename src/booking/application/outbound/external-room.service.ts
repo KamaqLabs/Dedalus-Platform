@@ -18,12 +18,30 @@ export class ExternalRoomService {
         return this.roomContextFacade.assingNfcKeyToRoom(roomId,nfcKey);
     }
 
-    public async reserveRoom(roomId:number, nfcKey:string): Promise<Room>{
-        return this.roomContextFacade.reserveRoom(roomId,nfcKey);
+    public async reserveRoom(roomId:number): Promise<Room>{
+        return this.roomContextFacade.reserveRoom(roomId);
     }
 
     public async getPricePerNight(roomId:number): Promise<number>{
         return this.roomContextFacade.getPricePerNight(roomId);
+    }
+
+    public async changeRoomStatusToOccupied(roomId:number): Promise<void>{
+
+        return await this.roomContextFacade.changeStatusToOccupied(roomId);
+    }
+
+    public async changeRoomStatusToMaintenance(roomId:number): Promise<void>{
+
+        return await this.roomContextFacade.changeStatusToMaintenance(roomId);
+    }
+
+    public async changeRoomStatusToAvailable(roomId:number): Promise<void>{
+        return await this.roomContextFacade.changeStatusToAvailable(roomId);
+    }
+
+    public async deleteNfcKeyFromRoom(roomId:number): Promise<void>{
+        return await this.roomContextFacade.deleteNfcKeyFromRoom(roomId);
     }
 
 }

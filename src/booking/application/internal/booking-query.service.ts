@@ -34,4 +34,8 @@ export class BookingQueryService implements IBookingQueryService {
         return this.bookingRepository.findAllAsync();
     }
 
+    findBookingsForStatusUpdate(): Promise<{ readyForCheckIn: Booking[]; pendingConfirmation: Booking[]; readyForCheckOut: Booking[] }> {
+        return this.bookingRepository.findBookingsForStatusUpdate();
+    }
+
 }

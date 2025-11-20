@@ -61,6 +61,7 @@ export class GuestProfile extends Profile{
         this.nfcKey = nfcKey;
     }
 
+
     public DestroyNfcKey() {
         this.nfcKey = null;
     }
