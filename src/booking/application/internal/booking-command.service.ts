@@ -43,14 +43,15 @@ export class BookingCommandService implements IBookingCommandService {
         const nights = this.calculateNights(booking.checkInDate, booking.checkOutDate);
         booking.totalPrice = await this.externalRoomService.getPricePerNight(roomId) * nights;
         const createdBooking = await this.bookingRepository.addAsync(booking);
-        const nfcKey = NfcTokenGenerator.generateNfcToken();
-        await this.externalRoomService.reserveRoom(roomId, nfcKey);
-        await this.externalGuestProfileService.addNfcKeyToGuestProfile(guestId, nfcKey);
-        const guestInformation = await this.externalGuestProfileService.getGuestProfile(guestId);
-        guestInformation.AssignNfcKey(nfcKey);
+        await this.externalRoomService.reserveRoom(roomId);
+        const guestInformation: GuestProfile = await this.externalGuestProfileService.getGuestProfile(guestId);
+
+        if(createdBooking.bookStatus === BookStatus.CHECKED_IN){
+            await this.HandleCheckInBookingAsync(createdBooking.id);
+        }
+
         return BookInformationResourceDto.fromBookingAndGuest(createdBooking, guestInformation);
     }
-
 
     async HandleCreateBookingByGuestCodeAsync(command: CreateBookByGuestCodeCommand, hotelId: number): Promise<BookInformationResourceDto> {
 
@@ -91,11 +92,7 @@ export class BookingCommandService implements IBookingCommandService {
         const guestInformation = await this.externalGuestProfileService.getGuestProfile(guestProfile.id);
         guestInformation.AssignNfcKey(nfcKey);
         return BookInformationResourceDto.fromBookingAndGuest(createdBooking, guestInformation);*/
-
         return await this.createAndAssignBooking(booking, command.roomId, guestProfile.id);
-
-
-
     }
 
     async HandleCreateBookingAsync(command: CreateBookCommand, hotelId: number): Promise<BookInformationResourceDto> {
@@ -138,6 +135,7 @@ export class BookingCommandService implements IBookingCommandService {
         return await this.createAndAssignBooking(booking, command.roomId, command.guestId);
     }
     HandleUpdateBookingAsync(bookingId: number, command: UpdateBookCommand): Promise<Booking> {
+
         throw new Error("Method not implemented.");
     }
     HandleDeleteBookingAsync(bookingId: number): Promise<void> {
@@ -149,18 +147,75 @@ export class BookingCommandService implements IBookingCommandService {
     HandleAddPriceToBookingAsync(bookingId: number, additionalPrice: number): Promise<Booking> {
         throw new Error("Method not implemented.");
     }
-    HandleCheckInBookingAsync(bookingId: number): Promise<Booking> {
-        throw new Error("Method not implemented.");
+
+
+
+    async HandleConfirmBookingAsync(bookingId: number): Promise<void> {
+        const toConfirmBooking: Booking = await this.bookingRepository.findByIdAsync(bookingId);
+        try{
+            //status del book a CONFIRMED
+            toConfirmBooking.confirm()
+            await this.bookingRepository.updateAsync(toConfirmBooking);
+
+        }catch(error){
+            throw new Error(`Error during confirm booking process: ${error.message}`);
+        }
     }
-    HandleCheckOutBookingAsync(bookingId: number): Promise<Booking> {
-        throw new Error("Method not implemented.");
+
+    async HandleCheckInBookingAsync(bookingId: number): Promise<void> {
+
+       const toCheckInBooking: Booking = await this.bookingRepository.findByIdAsync(bookingId);
+
+       try{
+           //status del book a CHECKED_IN
+           toCheckInBooking.checkIn();
+           //generar nfc key para el book
+           const nfcKey = NfcTokenGenerator.generateNfcToken();
+           await this.bookingRepository.updateAsync(toCheckInBooking);
+
+           //asignar nfc key a el room
+           await this.externalRoomService.addNfcKeyToRoom(toCheckInBooking.roomId, nfcKey);
+           //actualizar el status del room a OCCUPIED
+           await this.externalRoomService.changeRoomStatusToOccupied(toCheckInBooking.roomId);
+
+
+            // asignar nfc key a el guest profile
+           await this.externalGuestProfileService.addNfcKeyToGuestProfile(toCheckInBooking.guestId, nfcKey);
+           // actualizar el sattus del guest profile a ACTIVE
+           await this.externalGuestProfileService.changeGuestStatusToActive(toCheckInBooking.guestId);
+
+
+       }catch(error){
+           throw new Error(`Error during check-in process: ${error.message}`);
+       }
+
     }
+    async HandleCheckOutBookingAsync(bookingId: number): Promise<void> {
+
+        const toCheckOutBooking: Booking = await this.bookingRepository.findByIdAsync(bookingId);
+
+        try{
+            //actualizar el status del book a CHECKED_OUT
+            toCheckOutBooking.checkOut();
+            await this.bookingRepository.updateAsync(toCheckOutBooking);
+
+            await this.externalRoomService.deleteNfcKeyFromRoom(toCheckOutBooking.roomId)
+            await this.externalRoomService.changeRoomStatusToMaintenance(toCheckOutBooking.roomId);
+
+            await this.externalGuestProfileService.removeNfcKeyFromGuestProfile(toCheckOutBooking.guestId);
+            await this.externalGuestProfileService.changeGuestStatusToInactive(toCheckOutBooking.guestId);
+
+        }catch(error){
+            throw new Error(`Error during check-out process: ${error.message}`);
+        }
+
+    }
+
     HandleCancelBookingAsync(bookingId: number): Promise<Booking> {
         throw new Error("Method not implemented.");
     }
-    HandleConfirmBookingAsync(bookingId: number): Promise<Booking> {
-        throw new Error("Method not implemented.");
-    }
+
+
     HandleRejectBookingAsync(bookingId: number, reason?: string): Promise<Booking> {
         throw new Error("Method not implemented.");
     }

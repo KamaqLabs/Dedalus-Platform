@@ -55,15 +55,25 @@ export class ProfileContextFacadeService {
     }
 
     public async AddNfcKeyToGuestProfile(guestProfileId: number, nfcKey: string): Promise<void> {
-        const guestProfile = await this.FetchGuestProfileById(guestProfileId);
-        if (!guestProfile) {
-            throw new Error('Guest profile not found');
-        }
-        guestProfile.AssignNfcKey(nfcKey);
         const data = { guestProfileId, nfcKey };
         await this.guestProfileCommandService.HandleAddGuestNfcKey(new AddGuestNfcKeyCommand(data));
-        // Here you would typically save the updated guest profile back to the repository
     }
+
+    public async RemoveNfcKeyFromGuestProfile(guestProfileId: number): Promise<void> {
+        const data = { guestProfileId };
+        await this.guestProfileCommandService.HandleDestroyGuestNfcKey(data);
+
+    }
+
+    public async ChangeStatusToActive(guestProfileId: number): Promise<void> {
+        await this.guestProfileCommandService.HandleActivateGuestProfile(guestProfileId);
+    }
+
+    public async ChangeStatusToInactive(guestProfileId: number): Promise<void> {
+        await this.guestProfileCommandService.HandleDeactivateGuestProfile(guestProfileId);
+    }
+
+
 
     //administrator profile methods will be here
 

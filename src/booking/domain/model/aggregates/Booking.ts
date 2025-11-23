@@ -97,6 +97,18 @@ export class Booking {
     public updateStatus(status: BookStatus): void {
         this.bookStatus = status;
     }
+    public checkIn(): void {
+        this.bookStatus = BookStatus.CHECKED_IN;
+    }
+
+    public checkOut(): void {
+        this.bookStatus = BookStatus.CHECKED_OUT;
+    }
+
+    public confirm(): void {
+        this.bookStatus = BookStatus.CONFIRMED;
+    }
+
 
     public addPrice(amount: number): void {
         this.totalPrice += amount;

@@ -27,7 +27,7 @@ export class CreateBookByGuestCodeResourceDto{
 
     @ApiProperty({
         description: 'Fecha de entrada (check-in) en formato ISO. **IMPORTANTE: Enviar en hora peruana (UTC-5)**',
-        example: '2025-09-15T14:00:00-05:00',
+        example: '2025-11-25T12:00:00',
         type: String,
         format: 'date-time'
     })
@@ -37,7 +37,7 @@ export class CreateBookByGuestCodeResourceDto{
 
     @ApiProperty({
         description: 'Fecha de salida (check-out) en formato ISO. **IMPORTANTE: Enviar en hora peruana (UTC-5)**',
-        example: '2025-09-20T12:00:00-05:00', //
+        example: '2025-11-25T12:00:00',
         type: String,
         format: 'date-time'
     })
